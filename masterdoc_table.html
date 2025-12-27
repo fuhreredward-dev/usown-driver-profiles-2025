@@ -229,6 +229,11 @@
       return '#7d8590';
     }
 
+    function formatHeader(header) {
+      if (header === 'Age-Adjusted Score') return 'IndyCar Prospect Score';
+      return header;
+    }
+
     function formatCell(header, value) {
       if (header === 'Age-Adjusted Score' && Number.isFinite(value)) {
         const color = getScoreColor(value);
@@ -390,7 +395,7 @@
         const headerRow = document.createElement('tr');
         parsed.headers.forEach(header => {
           const th = document.createElement('th');
-          th.textContent = header;
+          th.textContent = formatHeader(header);
           th.className = 'sortable';
           th.dataset.column = header;
           th.addEventListener('click', () => sortBy(header));

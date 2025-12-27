@@ -92,12 +92,15 @@
   <header>
     <div>
       <h1>Driver Prospect Profiles</h1>
-      <div class="tagline">Interactive view backed by masterdoc_with_scores.csv. Click a driver to see their seasons, scores, and comps.</div>
+      <div class="tagline">Interactive view backed by over 7,000 USF Pro Championships race results. Click a driver to see their seasons, scores, and comps.</div>
     </div>
     <div class="controls">
       <input id="search" placeholder="Search driver (e.g., Askew)" />
       <select id="seriesFilter">
         <option value="">All series</option>
+      </select>
+      <select id="yearFilter">
+        <option value="">All years</option>
       </select>
     </div>
   </header>
@@ -183,7 +186,8 @@
           latestTeam: latest?.team ?? '',
           latestAge: latest?.age ?? null,
           minAdjAvg,
-          rank2025: {}
+          rank2025: {},
+          taafPercentiles: {}
         };
       });
 
@@ -205,6 +209,64 @@
         list.sort((a, b) => b.score - a.score);
         list.forEach((entry, idx) => {
           entry.driver.metrics.rank2025[series] = idx + 1;
+        });
+      });
+    }
+
+    function computeTAAFPercentiles(drivers) {
+      // Collect all TAAF delta values by series and by year
+      const bySeries = new Map();
+      const byYear = new Map();
+      
+      drivers.forEach(d => {
+        d.seasons.forEach(s => {
+          if (!Number.isFinite(s.taafDelta) || !s.series || !s.year) return;
+          
+          // By series (career best)
+          const seriesList = bySeries.get(s.series) || [];
+          seriesList.push({ driver: d, season: s, taafDelta: s.taafDelta });
+          bySeries.set(s.series, seriesList);
+          
+          // By year
+          const yearList = byYear.get(s.year) || [];
+          yearList.push({ driver: d, season: s, taafDelta: s.taafDelta });
+          byYear.set(s.year, yearList);
+        });
+      });
+
+      // Calculate percentiles for each driver by series (using their best TAAF delta)
+      bySeries.forEach((list, series) => {
+        const sortedDeltas = list.map(x => x.taafDelta).sort((a, b) => a - b);
+        const driverBest = new Map();
+        
+        // Get best (most negative) TAAF delta per driver in this series
+        list.forEach(entry => {
+          const current = driverBest.get(entry.driver.name);
+          if (!current || entry.taafDelta < current) {
+            driverBest.set(entry.driver.name, entry.taafDelta);
+          }
+        });
+        
+        // Calculate percentile for each driver's best
+        driverBest.forEach((bestDelta, driverName) => {
+          const driver = drivers.get(driverName);
+          if (!driver) return;
+          const percentile = (sortedDeltas.filter(d => d > bestDelta).length / sortedDeltas.length) * 100;
+          if (!driver.metrics.taafPercentiles.bySeries) driver.metrics.taafPercentiles.bySeries = {};
+          driver.metrics.taafPercentiles.bySeries[series] = Math.round(percentile);
+        });
+      });
+
+      // Calculate percentiles by specific year
+      drivers.forEach(d => {
+        d.seasons.forEach(s => {
+          if (!Number.isFinite(s.taafDelta) || !s.year) return;
+          const yearList = byYear.get(s.year);
+          if (!yearList) return;
+          const sortedDeltas = yearList.map(x => x.taafDelta).sort((a, b) => a - b);
+          const percentile = (sortedDeltas.filter(delta => delta > s.taafDelta).length / sortedDeltas.length) * 100;
+          if (!d.metrics.taafPercentiles.byYear) d.metrics.taafPercentiles.byYear = {};
+          d.metrics.taafPercentiles.byYear[s.year] = Math.round(percentile);
         });
       });
     }
@@ -249,7 +311,7 @@
       return '#7d8590';
     }
 
-    function renderDriverList(drivers, { query = '', series = '' } = {}) {
+    function renderDriverList(drivers, { query = '', series = '', year = '' } = {}) {
       const listEl = document.getElementById('driverList');
       listEl.innerHTML = '';
       const normalizedQuery = query.toLowerCase();
@@ -257,6 +319,7 @@
       const rows = Array.from(drivers.values())
         .filter(d => !normalizedQuery || d.name.toLowerCase().includes(normalizedQuery))
         .filter(d => !series || d.seasons.some(s => s.series === series))
+        .filter(d => !year || d.seasons.some(s => String(s.year) === year))
         .sort((a, b) => (b.metrics.bestScore || 0) - (a.metrics.bestScore || 0));
 
       rows.forEach(d => {
@@ -277,6 +340,31 @@
         empty.textContent = 'No drivers match your filters yet.';
         listEl.appendChild(empty);
       }
+    }
+
+    function generateTAAFInsights(driver) {
+      const insights = [];
+      
+      // Career best by series
+      if (driver.metrics.taafPercentiles.bySeries) {
+        Object.entries(driver.metrics.taafPercentiles.bySeries).forEach(([series, percentile]) => {
+          if (percentile > 0) {
+            insights.push(`${driver.name} outperforms their teammates better than ${percentile}% of drivers in ${series} from 2015-2025`);
+          }
+        });
+      }
+      
+      // Latest year performance
+      const latest = driver.seasons[0];
+      if (latest && latest.year && driver.metrics.taafPercentiles.byYear && driver.metrics.taafPercentiles.byYear[latest.year]) {
+        const yearPercentile = driver.metrics.taafPercentiles.byYear[latest.year];
+        if (yearPercentile > 0 && Number.isFinite(latest.taafDelta)) {
+          insights.push(`${driver.name} outperformed their teammates better than ${yearPercentile}% of drivers in ${latest.year}`);
+        }
+      }
+      
+      if (insights.length === 0) return '';
+      return `<div class="banner" style="margin-bottom:8px;">${insights.join(' · ')}</div>`;
     }
 
     function summarizeDriver(driver) {
@@ -318,6 +406,7 @@
           ${rank ? `<span class="pill">2025 ${latest.series} rank #${rank}</span>` : ''}
         </div>
         <div class="summary">${summarizeDriver(driver) || 'No summary available yet.'}</div>
+        ${generateTAAFInsights(driver)}
         <div class="stat-grid">
           <div class="stat"><label>IndyCar prospect score</label><div class="value" style="color:${getScoreColor(driver.metrics.bestScore)}">${formatNumber(driver.metrics.bestScore, 1)}</div></div>
           <div class="stat"><label>Latest age-adjusted score</label><div class="value">${formatNumber(driver.metrics.latestScore, 1)}</div></div>
@@ -396,6 +485,18 @@
       });
     }
 
+    function populateYearFilter(drivers) {
+      const select = document.getElementById('yearFilter');
+      const allYears = new Set();
+      drivers.forEach(d => d.seasons.forEach(s => s.year && allYears.add(s.year)));
+      Array.from(allYears).sort((a, b) => b - a).forEach(year => {
+        const opt = document.createElement('option');
+        opt.value = year;
+        opt.textContent = year;
+        select.appendChild(opt);
+      });
+    }
+
     async function init() {
       const detail = document.getElementById('detail');
       try {
@@ -406,7 +507,9 @@
         const rows = parseCSV(text);
         drivers = buildDrivers(rows);
         computeSeriesRanks(drivers);
+        computeTAAFPercentiles(drivers);
         populateSeriesFilter(drivers);
+        populateYearFilter(drivers);
         renderDriverList(drivers);
         const first = Array.from(drivers.values())[0];
         selectDriver(first?.name);
@@ -417,10 +520,13 @@
     }
 
     document.getElementById('search').addEventListener('input', (e) => {
-      renderDriverList(drivers, { query: e.target.value, series: document.getElementById('seriesFilter').value });
+      renderDriverList(drivers, { query: e.target.value, series: document.getElementById('seriesFilter').value, year: document.getElementById('yearFilter').value });
     });
     document.getElementById('seriesFilter').addEventListener('change', (e) => {
-      renderDriverList(drivers, { query: document.getElementById('search').value, series: e.target.value });
+      renderDriverList(drivers, { query: document.getElementById('search').value, series: e.target.value, year: document.getElementById('yearFilter').value });
+    });
+    document.getElementById('yearFilter').addEventListener('change', (e) => {
+      renderDriverList(drivers, { query: document.getElementById('search').value, series: document.getElementById('seriesFilter').value, year: e.target.value });
     });
 
     init();
