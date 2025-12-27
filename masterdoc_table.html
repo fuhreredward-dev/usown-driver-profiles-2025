@@ -239,6 +239,9 @@
         if (val === 'yes') return '<span class="badge yes">Yes</span>';
         return '';
       }
+      if (header === 'Year' || header === 'Age') {
+        return Number.isFinite(value) ? Math.round(value) : (value || '—');
+      }
       if (Number.isFinite(value)) {
         return value.toFixed(2);
       }
