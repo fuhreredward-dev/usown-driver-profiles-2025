@@ -52,6 +52,39 @@
       background: var(--accent-soft);
       border: 1px solid var(--accent);
     }
+    .brand-header {
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 28px 16px;
+      text-align: center;
+    }
+    .brand-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0 0 12px;
+      line-height: 1.5;
+    }
+    .brand-links {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .brand-links a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 120ms ease;
+    }
+    .brand-links a:hover {
+      opacity: 0.7;
+    }
     .content {
       max-width: 1200px;
       margin: 0 auto;
@@ -116,6 +149,16 @@
     <a href="masterdoc_table.html">Data Table</a>
     <a href="statistics_guide.html" class="active">Statistics Guide</a>
   </nav>
+  
+  <div class="brand-header">
+    <h1 class="brand-title">ScoutDeck presented by USOpenWheelNation</h1>
+    <p class="brand-subtitle">An analysis of IndyCar prospects utilizing USF Pro Championships race results from 2015-2025.</p>
+    <div class="brand-links">
+      <a href="https://usopenWheelNation.com" target="_blank" rel="noopener">Visit USOpenWheelNation.com →</a>
+      <span style="color: var(--muted);">•</span>
+      <a href="mailto:fuhreredward@gmail.com">Contact: fuhreredward@gmail.com</a>
+    </div>
+  </div>
 
   <div class="content">
     <h1>Driver Prospect Evaluation System - Statistics Guide</h1>
