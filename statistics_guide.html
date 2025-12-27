@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Statistics Guide - USOpenWheel ScoutDeck</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #121622;
+      --panel-2: #0f1320;
+      --accent: #3dd6c1;
+      --accent-soft: rgba(61, 214, 193, 0.15);
+      --text: #f2f5ff;
+      --muted: #9aa3b5;
+      --border: #1f2534;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --font: "Manrope", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: radial-gradient(120% 120% at 10% 10%, #101527 0%, #080a0f 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .topnav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .topnav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 120ms ease;
+    }
+    .topnav a:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .topnav a.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+    }
+    .content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 28px;
+    }
+    h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.01em; }
+    h2 { font-size: 24px; margin: 40px 0 16px; color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+    h3 { font-size: 20px; margin: 32px 0 12px; color: var(--text); }
+    h4 { font-size: 16px; margin: 24px 0 8px; color: var(--muted); }
+    p { line-height: 1.7; margin: 12px 0; color: var(--muted); }
+    strong { color: var(--text); }
+    ul, ol { line-height: 1.8; color: var(--muted); }
+    li { margin: 8px 0; }
+    code {
+      background: var(--panel-2);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'Consolas', monospace;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: var(--panel-2);
+      color: var(--text);
+      font-weight: 600;
+    }
+    td { color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    .highlight {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a href="index.html">Driver Profiles</a>
+    <a href="masterdoc_table.html">Data Table</a>
+    <a href="statistics_guide.html" class="active">Statistics Guide</a>
+  </nav>
+
+  <div class="content">
+    <h1>Driver Prospect Evaluation System - Statistics Guide</h1>
+    
+    <h2>Overview</h2>
+    <p>This system evaluates racing drivers progressing through the USF Pro Championships ladder (USF Juniors → USF2000 → USF Pro 2000 → Indy NXT → IndyCar) using comprehensive statistical analysis of over 7,000 race results from 2015-2025. The goal is to identify which drivers have the best potential to succeed in IndyCar.</p>
+
+    <hr>
+
+    <h2>Core Metrics Explained</h2>
+
+    <h3>IndyCar Prospect Score (Age-Adjusted Score)</h3>
+    <p><strong>What it is:</strong> The primary metric for evaluating a driver's IndyCar potential, ranging typically from 0-100+. This is the driver's best age-adjusted score across all their seasons.</p>
+    
+    <p><strong>Why it matters:</strong> This single number encapsulates a driver's overall competitiveness while accounting for the advantages/disadvantages of their age. Younger drivers performing at the same level as older competitors show more raw talent and have more time to develop.</p>
+    
+    <p><strong>How it's calculated:</strong></p>
+    <ol>
+      <li>Start with the base <strong>Prospect Score</strong></li>
+      <li>Apply <strong>Age Adjustment</strong> bonuses/penalties:
+        <ul>
+          <li>Ages 14-15: +5.0 to +11.2 points (significant bonus for extreme youth)</li>
+          <li>Ages 16-17: +1.2 to +1.5 points (moderate bonus)</li>
+          <li>Ages 18-19: 0 points (neutral, expected age range)</li>
+          <li>Ages 20-21: 0 to -0.5 points (slight penalty)</li>
+          <li>Ages 22+: -1.5 to -3.0 points (increasing penalty for older drivers)</li>
+        </ul>
+      </li>
+    </ol>
+    
+    <p><strong>Interpretation:</strong></p>
+    <ul>
+      <li><strong>90+</strong> (Elite, Dark Green): Exceptional IndyCar potential. Historical comparisons to championship-caliber drivers.</li>
+      <li><strong>80-89.9</strong> (Strong, Bright Green): High IndyCar potential. Likely to reach top series with good opportunities.</li>
+      <li><strong>70-79.9</strong> (Good, Light Green): Solid prospect. Could reach IndyCar or be competitive in Indy NXT.</li>
+      <li><strong>60-69.9</strong> (Developing, Yellow): Moderate potential. May need more time or better equipment to progress.</li>
+      <li><strong>Below 60</strong> (Gray): Limited IndyCar potential based on current performance trajectory.</li>
+    </ul>
+
+    <h3>Base Prospect Score</h3>
+    <p><strong>What it is:</strong> The unadjusted performance score before age considerations, typically ranging 0-90.</p>
+    
+    <p><strong>Why it matters:</strong> Shows raw performance capability independent of age. Useful for comparing drivers of different ages on equal footing.</p>
+    
+    <p><strong>How it's calculated:</strong> Complex weighted algorithm incorporating:</p>
+    <ul>
+      <li><strong>Series-Adjusted Average Finish</strong> (40% weight)</li>
+      <li><strong>Series-Adjusted TAAF Delta</strong> (30% weight)</li>
+      <li><strong>Championship Position</strong> (20% weight)</li>
+      <li><strong>Year-over-Year Improvement</strong> (10% weight)</li>
+    </ul>
+    <p>Each component is normalized against historical performance distributions within each series to account for competition level differences between USF Juniors, USF2000, and USF Pro 2000.</p>
+
+    <h3>Average Finish (AVG Finish)</h3>
+    <p><strong>What it is:</strong> A driver's mean finishing position across all races in a season.</p>
+    
+    <p><strong>Why it matters:</strong> The most fundamental performance indicator. Consistency matters—finishing 3rd, 4th, 3rd is often more valuable than 1st, DNF, 8th.</p>
+    
+    <p><strong>How it's calculated:</strong> Simple arithmetic mean of all race finishes in a season.</p>
+    <p>Example: Finishes of 2, 3, 5, 4, 1 = (2+3+5+4+1)/5 = 3.0 average</p>
+
+    <h3>Series-Adjusted Average Finish</h3>
+    <p><strong>What it is:</strong> Average finish normalized to account for competitive differences between series.</p>
+    
+    <p><strong>Why it matters:</strong> USF Juniors fields are less competitive than USF2000 or USF Pro 2000. A 5.0 average in USF Juniors ≠ 5.0 average in USF Pro 2000. This adjustment enables fair cross-series comparison.</p>
+    
+    <p><strong>How it's calculated:</strong></p>
+    <ol>
+      <li>Calculate historical competitive benchmarks for each series</li>
+      <li>Apply series-specific adjustment factors:
+        <ul>
+          <li>USF Juniors: Typically adds ~1.5-2.0 points to account for weaker fields</li>
+          <li>USF2000: Typically adds ~0.1-0.3 points (baseline competitive reference)</li>
+          <li>USF Pro 2000: No adjustment or slight subtraction (strongest fields)</li>
+        </ul>
+      </li>
+      <li>Result: Normalized finish values comparable across series</li>
+    </ol>
+    
+    <div class="highlight">
+      <p><strong>Example:</strong></p>
+      <ul>
+        <li>Driver A: 7.0 avg finish in USF Juniors → 8.5 series-adjusted</li>
+        <li>Driver B: 8.5 avg finish in USF2000 → 8.5 series-adjusted</li>
+        <li>These drivers have equivalent performance despite different raw numbers</li>
+      </ul>
+    </div>
+
+    <h3>TAAF Delta (Teammate-Adjusted Average Finish)</h3>
+    <p><strong>What it is:</strong> How much better or worse a driver finishes compared to their teammates' average.</p>
+    
+    <p><strong>Why it matters:</strong> Equipment and team quality vary enormously in junior formulas. TAAF Delta isolates driver skill by comparing performance against teammates using identical machinery.</p>
+    
+    <p><strong>How it's calculated:</strong></p>
+    <ol>
+      <li>Calculate driver's average finish for the season</li>
+      <li>Calculate the average finish of all teammates</li>
+      <li>Subtract: TAAF Delta = Driver AVG - Teammate AVG</li>
+    </ol>
+    
+    <p><strong>Interpretation:</strong></p>
+    <ul>
+      <li><strong>Negative values</strong> (e.g., -2.5): Driver finishes 2.5 positions better than teammates on average (excellent)</li>
+      <li><strong>Zero:</strong> Driver matches teammate performance (neutral)</li>
+      <li><strong>Positive values</strong> (e.g., +3.0): Driver finishes 3.0 positions worse than teammates (concerning)</li>
+    </ul>
+    
+    <div class="highlight">
+      <p><strong>Example:</strong></p>
+      <ul>
+        <li>Driver finishes: 3, 4, 2, 5, 4 = 3.6 average</li>
+        <li>Teammates finish: 6, 8, 5, 7, 9 = 7.0 average</li>
+        <li>TAAF Delta: 3.6 - 7.0 = <strong>-3.4</strong> (driver significantly outperforms teammates)</li>
+      </ul>
+    </div>
+
+    <h3>TAAF Delta Percentile Rankings</h3>
+    <p><strong>What it is:</strong> Where a driver ranks in teammate outperformance compared to all other drivers.</p>
+    
+    <p><strong>Why it matters:</strong> Provides context—"better than X% of drivers" is more interpretable than raw TAAF numbers.</p>
+    
+    <p><strong>Two versions calculated:</strong></p>
+    <ol>
+      <li><strong>Career Best by Series</strong> (e.g., "outperforms teammates better than 85% of drivers in USF2000 from 2015-2025")
+        <ul>
+          <li>Uses the driver's single best (most negative) TAAF Delta season in that series</li>
+          <li>Compares against all drivers' best performances in that series historically</li>
+          <li>Shows peak teammate-beating capability</li>
+        </ul>
+      </li>
+      <li><strong>Single Year Performance</strong> (e.g., "outperformed teammates better than 78% of drivers in 2023")
+        <ul>
+          <li>Uses that specific season's TAAF Delta</li>
+          <li>Compares against all drivers who competed that year</li>
+          <li>Shows recent form and current competitiveness</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h3>Year-over-Year Changes</h3>
+    
+    <h4>AF YoY Change (Average Finish Year-over-Year Change)</h4>
+    <p><strong>What it is:</strong> How much a driver's average finish improved or declined from one season to the next.</p>
+    <p><strong>Why it matters:</strong> Identifies improvement trajectories. Young drivers who steadily improve show adaptability and development potential.</p>
+    <p><strong>How it's calculated:</strong> Current year AVG Finish - Previous year AVG Finish</p>
+    <ul>
+      <li><strong>Negative values:</strong> Improvement (finishing closer to 1st)</li>
+      <li><strong>Positive values:</strong> Decline (finishing further from 1st)</li>
+    </ul>
+
+    <h4>TAAF Delta YoY Change</h4>
+    <p><strong>What it is:</strong> Year-over-year change in teammate outperformance.</p>
+    <p><strong>Why it matters:</strong> Shows whether a driver is getting better or worse relative to their teammates over time, independent of team equipment changes.</p>
+
+    <h3>2025 Series Rank</h3>
+    <p><strong>What it is:</strong> The driver's ranking among all drivers who competed in the same series during 2025, based on Age-Adjusted Score.</p>
+    
+    <p><strong>Why it matters:</strong> Shows current standing in the competitive pecking order. "#1 in USF2000 2025" indicates the top prospect at that level.</p>
+    
+    <p><strong>How it's calculated:</strong></p>
+    <ol>
+      <li>Identify all drivers who competed in a series during 2025</li>
+      <li>Sort by their 2025 Age-Adjusted Score (descending)</li>
+      <li>Assign ranks (1st, 2nd, 3rd, etc.)</li>
+    </ol>
+
+    <h2>Comparable Drivers (Similar Profiles)</h2>
+    <p><strong>What it is:</strong> Drivers with similar statistical profiles based on multi-dimensional similarity analysis.</p>
+    
+    <p><strong>Why it matters:</strong> Helps identify developmental trajectories. "Driver X is similar to Driver Y who succeeded in IndyCar" provides predictive insight.</p>
+    
+    <p><strong>How it's calculated:</strong></p>
+    <ol>
+      <li>Create feature vector for each driver: [Best Score, Mean Score, Latest Score, Best Adjusted Finish]</li>
+      <li>Compute Euclidean distance between driver vectors</li>
+      <li>Select 5 drivers with smallest distance (most similar)</li>
+    </ol>
+    
+    <p><strong>Interpretation:</strong> Δ values show similarity—lower Δ means more similar profiles.</p>
+
+    <hr>
+
+    <h2>Quick Reference Table</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Good Value</th>
+          <th>Bad Value</th>
+          <th>Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>IndyCar Prospect Score</td>
+          <td>80+</td>
+          <td>&lt;60</td>
+          <td>Higher = better IndyCar potential</td>
+        </tr>
+        <tr>
+          <td>AVG Finish</td>
+          <td>&lt;5.0</td>
+          <td>&gt;12.0</td>
+          <td>Lower = better finishing positions</td>
+        </tr>
+        <tr>
+          <td>TAAF Delta</td>
+          <td>&lt;-1.5</td>
+          <td>&gt;+2.0</td>
+          <td>More negative = beats teammates</td>
+        </tr>
+        <tr>
+          <td>TAAF Percentile</td>
+          <td>&gt;70%</td>
+          <td>&lt;30%</td>
+          <td>Higher = better than more drivers</td>
+        </tr>
+        <tr>
+          <td>AF YoY Change</td>
+          <td>Negative</td>
+          <td>Positive</td>
+          <td>Negative = improving</td>
+        </tr>
+        <tr>
+          <td>Age (USF2000/Pro2000)</td>
+          <td>16-19</td>
+          <td>22+</td>
+          <td>Younger = more development runway</td>
+        </tr>
+        <tr>
+          <td>Championship Position</td>
+          <td>1st-3rd</td>
+          <td>10th+</td>
+          <td>Higher = consistent excellence</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight">
+      <p><strong>Color Coding (Prospect Scores):</strong></p>
+      <ul>
+        <li>🟢 Dark Green (90+): Elite</li>
+        <li>🟢 Bright Green (80-89.9): Strong</li>
+        <li>🟢 Light Green (70-79.9): Good</li>
+        <li>🟡 Yellow (60-69.9): Developing</li>
+        <li>⚪ Gray (&lt;60): Limited potential</li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <h2>Why This System Works</h2>
+    
+    <h3>1. Multi-Dimensional Analysis</h3>
+    <p>No single metric tells the full story. Average finish could reflect great equipment; TAAF Delta isolates skill; age adjustments account for development curves. The combination resists gaming and captures true talent.</p>
+
+    <h3>2. Historical Normalization</h3>
+    <p>All metrics are compared against 10+ years of historical data. This controls for year-to-year variance in competition quality and ensures scores remain meaningful over time.</p>
+
+    <h3>3. Series Adjustments</h3>
+    <p>Recognizing that USF Juniors is less competitive than USF Pro 2000 prevents penalizing drivers for natural career progression through weaker fields.</p>
+
+    <h3>4. Teammate Comparison</h3>
+    <p>TAAF Delta neutralizes the massive impact of equipment quality. A driver can have mediocre raw finishes but excellent TAAF Delta, revealing hidden talent in inferior machinery.</p>
+
+    <h3>5. Age Context</h3>
+    <p>Racing development is age-sensitive. The system rewards early bloomers (indicating natural talent) while accounting for late developers who may need more time.</p>
+
+    <hr>
+
+    <h2>Interpreting Results: Practical Guide</h2>
+
+    <h3>Evaluating a Young Driver (Ages 14-17)</h3>
+    <ul>
+      <li><strong>Focus on:</strong> Age-Adjusted Score (higher weight on age bonus), improvement trends (YoY changes)</li>
+      <li><strong>Less important:</strong> Raw finishes (they're competing against older drivers)</li>
+      <li><strong>Look for:</strong> Strong TAAF Delta (shows skill), upward trajectory, early advancement</li>
+    </ul>
+
+    <h3>Evaluating a Peak-Age Driver (Ages 18-19)</h3>
+    <ul>
+      <li><strong>Focus on:</strong> Raw performance metrics (AVG Finish, Championship Position), TAAF Delta</li>
+      <li><strong>Less important:</strong> Age adjustments (neutral at this age)</li>
+      <li><strong>Look for:</strong> Dominance metrics (championships, low AVG finish), readiness to advance</li>
+    </ul>
+
+    <h3>Evaluating an Older Driver (Ages 20+)</h3>
+    <ul>
+      <li><strong>Focus on:</strong> Why haven't they advanced? Are there external factors (funding, late start)?</li>
+      <li><strong>Less important:</strong> Age-adjusted scores (penalties reduce their headline numbers)</li>
+      <li><strong>Look for:</strong> Elite TAAF Delta (skill is there, opportunity may not be), sudden improvement</li>
+    </ul>
+
+    <h3>Red Flags 🚩</h3>
+    <ul>
+      <li>Declining TAAF Delta over time (getting worse relative to teammates)</li>
+      <li>Stagnation (multiple years in same series without improvement)</li>
+      <li>Very low TAAF percentiles (&lt;20%) despite good equipment (team name recognition)</li>
+      <li>Moving down the ladder (USF Pro 2000 → USF2000)</li>
+    </ul>
+
+    <h3>Green Flags ✅</h3>
+    <ul>
+      <li>Consistent TAAF Delta &lt;-1.5 across multiple seasons</li>
+      <li>Age-Adjusted Score &gt;80 by age 18</li>
+      <li>Rapid advancement (USF Juniors → USF2000 → USF Pro 2000 in 3 years)</li>
+      <li>Top-3 championships in competitive years</li>
+      <li>Strong comparable drivers who succeeded in IndyCar</li>
+    </ul>
+
+    <hr>
+
+    <h2>Data Sources and Methodology</h2>
+    
+    <p><strong>Race Results:</strong> 7,000+ individual race results from USF Pro Championships (2015-2025)</p>
+    
+    <p><strong>Series Covered:</strong></p>
+    <ul>
+      <li>USF Juniors (entry-level)</li>
+      <li>USF2000 Championship</li>
+      <li>USF Pro 2000 Championship</li>
+      <li>Indy NXT (formerly Indy Lights)</li>
+      <li>IndyCar (outcome tracking)</li>
+    </ul>
+    
+    <p><strong>Data Quality:</strong></p>
+    <ul>
+      <li>Manual verification of driver ages via Wikipedia, DriverDB, and official team sources</li>
+      <li>Fuzzy matching algorithms to reconcile driver name variations</li>
+      <li>Team assignment verification through Wikipedia scraping and race reports</li>
+      <li>Birthdate caching to ensure consistency across seasons</li>
+    </ul>
+
+    <hr>
+
+    <h2>Limitations and Considerations</h2>
+    <ol>
+      <li><strong>Sample Size:</strong> Drivers with only 1-2 seasons have less reliable scores than multi-year veterans</li>
+      <li><strong>Equipment Variance:</strong> Even TAAF Delta can't fully eliminate equipment effects if all teammates are equally weak/strong</li>
+      <li><strong>DNF Handling:</strong> Mechanical failures are recorded as finishing positions (typically last), which may penalize unlucky drivers</li>
+      <li><strong>Non-Racing Factors:</strong> Funding, sponsorship, and team politics affect career progression but aren't captured statistically</li>
+      <li><strong>Series Progression Timing:</strong> Drivers who move up "too early" or "too late" may have distorted scores</li>
+      <li><strong>Small Team Problem:</strong> Drivers without teammates (or only one teammate) have undefined or unreliable TAAF Delta</li>
+    </ol>
+
+    <hr>
+
+    <p style="text-align: center; color: var(--muted); margin-top: 60px;">
+      <strong>Remember:</strong> Statistics inform decisions but don't make them. Driver evaluation requires context—team situations, funding realities, personal circumstances, and subjective factors like racecraft and mental resilience. Use these tools as a foundation, not a conclusion.
+    </p>
+
+    <p style="text-align: center; color: var(--muted); font-size: 12px; margin-top: 20px;">
+      Last Updated: December 27, 2025 • Data Coverage: USF Pro Championships 2015-2025
+    </p>
+  </div>
+</body>
+</html>

@@ -86,9 +86,41 @@
     .small { font-size: 12px; color: var(--muted); }
     .banner { background: linear-gradient(120deg, rgba(61, 214, 193, 0.2), rgba(61, 214, 193, 0.05)); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; font-size: 13px; }
     .summary { font-size: 14px; color: var(--muted); line-height: 1.45; }
+    .topnav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .topnav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 120ms ease;
+    }
+    .topnav a:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .topnav a.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+    }
   </style>
 </head>
 <body>
+  <nav class="topnav">
+    <a href="index.html" class="active">Driver Profiles</a>
+    <a href="masterdoc_table.html">Data Table</a>
+    <a href="statistics_guide.html">Statistics Guide</a>
+  </nav>
   <header>
     <div>
       <h1>Driver Prospect Profiles</h1>
