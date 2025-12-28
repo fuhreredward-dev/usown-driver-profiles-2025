@@ -144,6 +144,64 @@
       border-color: var(--accent);
       box-shadow: 0 0 0 2px var(--accent-soft);
     }
+    .driver-input {
+      position: relative;
+    }
+    .driver-input input {
+      width: 100%;
+    }
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+    .autocomplete-list.active {
+      display: block;
+    }
+    .autocomplete-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.1s;
+    }
+    .autocomplete-item:hover, .autocomplete-item.selected {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .metric-explainer {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .metric-explainer h4 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .metric-explainer ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .metric-explainer li {
+      margin-bottom: 6px;
+    }
+    .metric-explainer strong {
+      color: var(--accent);
+    }
     .btn {
       background: linear-gradient(135deg, var(--accent), #5a8fff);
       color: #fff;
@@ -203,6 +261,11 @@
       font-size: 14px;
       font-weight: 600;
       color: var(--text);
+    }
+    .stat-value.best {
+      color: var(--accent);
+      font-weight: 700;
+      text-shadow: 0 0 8px var(--accent-soft);
     }
     .chart-section {
       background: var(--panel);
@@ -299,27 +362,31 @@
       <div class="selector-grid">
         <div class="driver-select">
           <label>Driver 1</label>
-          <select id="driver1">
-            <option value="">Select driver...</option>
-          </select>
+          <div class="driver-input">
+            <input type="text" id="driver1" placeholder="Type driver name..." autocomplete="off" />
+            <div class="autocomplete-list" id="driver1-list"></div>
+          </div>
         </div>
         <div class="driver-select">
           <label>Driver 2</label>
-          <select id="driver2">
-            <option value="">Select driver...</option>
-          </select>
+          <div class="driver-input">
+            <input type="text" id="driver2" placeholder="Type driver name..." autocomplete="off" />
+            <div class="autocomplete-list" id="driver2-list"></div>
+          </div>
         </div>
         <div class="driver-select">
           <label>Driver 3 (Optional)</label>
-          <select id="driver3">
-            <option value="">Select driver...</option>
-          </select>
+          <div class="driver-input">
+            <input type="text" id="driver3" placeholder="Type driver name..." autocomplete="off" />
+            <div class="autocomplete-list" id="driver3-list"></div>
+          </div>
         </div>
         <div class="driver-select">
           <label>Driver 4 (Optional)</label>
-          <select id="driver4">
-            <option value="">Select driver...</option>
-          </select>
+          <div class="driver-input">
+            <input type="text" id="driver4" placeholder="Type driver name..." autocomplete="off" />
+            <div class="autocomplete-list" id="driver4-list"></div>
+          </div>
         </div>
       </div>
       <button class="btn" onclick="compareDrivers()">Compare Drivers</button>
@@ -414,36 +481,100 @@
         return;
       }
       
-      const selects = ['driver1', 'driver2', 'driver3', 'driver4'];
+      // Setup autocomplete for each input
+      const inputs = ['driver1', 'driver2', 'driver3', 'driver4'];
       
-      selects.forEach(id => {
-        const select = document.getElementById(id);
-        drivers.forEach(driver => {
-          const option = document.createElement('option');
-          option.value = driver;
-          option.textContent = driver;
-          select.appendChild(option);
+      inputs.forEach(id => {
+        const input = document.getElementById(id);
+        const listEl = document.getElementById(id + '-list');
+        
+        input.addEventListener('input', () => {
+          const query = input.value.toLowerCase().trim();
+          if (!query) {
+            listEl.classList.remove('active');
+            return;
+          }
+          
+          const matches = drivers.filter(d => d.toLowerCase().includes(query)).slice(0, 10);
+          
+          if (matches.length === 0) {
+            listEl.classList.remove('active');
+            return;
+          }
+          
+          listEl.innerHTML = matches.map(driver => 
+            `<div class="autocomplete-item" data-value="${driver}">${driver}</div>`
+          ).join('');
+          listEl.classList.add('active');
+          
+          // Add click handlers
+          listEl.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', () => {
+              input.value = item.dataset.value;
+              input.dataset.selected = item.dataset.value;
+              listEl.classList.remove('active');
+            });
+          });
+        });
+        
+        // Close list when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!input.contains(e.target) && !listEl.contains(e.target)) {
+            listEl.classList.remove('active');
+          }
         });
       });
       
-      console.log('Dropdowns populated with', drivers.length, 'drivers');
+      console.log('Autocomplete setup for', drivers.length, 'drivers');
     }
 
     function compareDrivers() {
+      const allDrivers = Object.keys(driverSeasons);
       const selectedDrivers = [
         document.getElementById('driver1').value,
         document.getElementById('driver2').value,
         document.getElementById('driver3').value,
         document.getElementById('driver4').value
-      ].filter(d => d);
+      ].filter(d => d.trim());
 
       if (selectedDrivers.length < 2) {
         alert('Please select at least 2 drivers to compare.');
         return;
       }
+      
+      // Validate driver names exist
+      const invalid = selectedDrivers.filter(d => !allDrivers.includes(d));
+      if (invalid.length > 0) {
+        alert('Driver not found: ' + invalid.join(', ') + '\nPlease select from the autocomplete suggestions.');
+        return;
+      }
 
       const resultsDiv = document.getElementById('comparisonResults');
       resultsDiv.innerHTML = '';
+
+      // Calculate stats for all drivers to find leaders
+      const driverStats = selectedDrivers.map(driver => {
+        const seasons = driverSeasons[driver];
+        const scores = seasons.map(s => parseFloat(s['Age-Adjusted Score'])).filter(s => !isNaN(s));
+        const avgFinishes = seasons.map(s => parseFloat(s['AVG Finish'])).filter(f => !isNaN(f));
+        const taafDeltas = seasons.map(s => parseFloat(s['TAAF Delta'])).filter(t => !isNaN(t));
+        
+        return {
+          driver,
+          maxScore: scores.length ? Math.max(...scores) : -Infinity,
+          avgScore: scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : -Infinity,
+          avgFinish: avgFinishes.length ? avgFinishes.reduce((a, b) => a + b, 0) / avgFinishes.length : Infinity,
+          avgTAAF: taafDeltas.length ? taafDeltas.reduce((a, b) => a + b, 0) / taafDeltas.length : -Infinity
+        };
+      });
+
+      // Find leaders for each metric
+      const leaders = {
+        maxScore: driverStats.reduce((max, d) => d.maxScore > max.maxScore ? d : max).driver,
+        avgScore: driverStats.reduce((max, d) => d.avgScore > max.avgScore ? d : max).driver,
+        avgFinish: driverStats.reduce((min, d) => d.avgFinish < min.avgFinish ? d : min).driver, // Lower is better
+        avgTAAF: driverStats.reduce((max, d) => d.avgTAAF > max.avgTAAF ? d : max).driver
+      };
 
       // Create comparison cards
       const cardGrid = document.createElement('div');
@@ -451,7 +582,7 @@
       
       selectedDrivers.forEach(driver => {
         const seasons = driverSeasons[driver];
-        const card = createDriverCard(driver, seasons);
+        const card = createDriverCard(driver, seasons, leaders);
         cardGrid.appendChild(card);
       });
       
@@ -467,7 +598,7 @@
       createHeadToHead(selectedDrivers);
     }
 
-    function createDriverCard(driver, seasons) {
+    function createDriverCard(driver, seasons, leaders) {
       const card = document.createElement('div');
       card.className = 'driver-card';
 
@@ -488,24 +619,30 @@
 
       const seriesList = [...new Set(seasons.map(s => s.Series))].join(', ');
 
+      // Check if this driver leads in each metric
+      const isMaxScoreLeader = leaders && leaders.maxScore === driver;
+      const isAvgScoreLeader = leaders && leaders.avgScore === driver;
+      const isAvgFinishLeader = leaders && leaders.avgFinish === driver;
+      const isAvgTAAFLeader = leaders && leaders.avgTAAF === driver;
+
       card.innerHTML = `
         <h2>${driver}</h2>
         <div class="seasons">${minYear}-${maxYear} • ${seasons.length} season${seasons.length > 1 ? 's' : ''}</div>
         <div class="stat-row">
           <div class="stat-label">Peak Prospect Score</div>
-          <div class="stat-value">${maxScore}</div>
+          <div class="stat-value ${isMaxScoreLeader ? 'best' : ''}">${maxScore}</div>
         </div>
         <div class="stat-row">
           <div class="stat-label">Avg Prospect Score</div>
-          <div class="stat-value">${avgScore}</div>
+          <div class="stat-value ${isAvgScoreLeader ? 'best' : ''}">${avgScore}</div>
         </div>
         <div class="stat-row">
           <div class="stat-label">Career Avg Finish</div>
-          <div class="stat-value">${avgFinish}</div>
+          <div class="stat-value ${isAvgFinishLeader ? 'best' : ''}">${avgFinish}</div>
         </div>
         <div class="stat-row">
           <div class="stat-label">Avg TAAF Delta</div>
-          <div class="stat-value">${avgTAAF}</div>
+          <div class="stat-value ${isAvgTAAFLeader ? 'best' : ''}">${avgTAAF}</div>
         </div>
         <div class="stat-row">
           <div class="stat-label">Series</div>
@@ -524,10 +661,13 @@
 
       const datasets = drivers.map((driver, idx) => {
         const seasons = driverSeasons[driver];
-        const data = seasons.map(s => ({
-          x: parseInt(s.Year),
+        // Sort by year first
+        const sortedSeasons = seasons.slice().sort((a, b) => parseInt(a.Year) - parseInt(b.Year));
+        // Map to career year (1, 2, 3, etc.)
+        const data = sortedSeasons.map((s, careerYear) => ({
+          x: careerYear + 1,
           y: parseFloat(s['Age-Adjusted Score']) || 0
-        })).sort((a, b) => a.x - b.x);
+        }));
 
         const colors = ['#3dd6c1', '#5a8fff', '#ff6b9d', '#ffd93d'];
         return {
@@ -561,7 +701,7 @@
           scales: {
             x: {
               type: 'linear',
-              title: { display: true, text: 'Year', color: '#9aa3b5' },
+              title: { display: true, text: 'Career Year in USF Pro Championships', color: '#9aa3b5' },
               ticks: { color: '#9aa3b5', stepSize: 1 },
               grid: { color: '#1f2534' }
             },
@@ -578,7 +718,20 @@
     function createRadarChart(drivers) {
       const chartSection = document.createElement('div');
       chartSection.className = 'chart-section';
-      chartSection.innerHTML = '<h3>Multi-Dimensional Comparison</h3><div class="radar-container"><canvas id="radarChart"></canvas></div>';
+      chartSection.innerHTML = `
+        <h3>Multi-Dimensional Comparison</h3>
+        <div class="radar-container"><canvas id="radarChart"></canvas></div>
+        <div class="metric-explainer">
+          <h4>Metric Explanations (0-100 scale):</h4>
+          <ul>
+            <li><strong>Avg Score:</strong> Average Age-Adjusted Prospect Score across all seasons (raw value, not percentile)</li>
+            <li><strong>Peak Score:</strong> Highest Age-Adjusted Prospect Score achieved in any season (raw value)</li>
+            <li><strong>Avg Finish:</strong> Career average finish position normalized to 0-100 (lower finish = higher score)</li>
+            <li><strong>TAAF Delta:</strong> Average teammate performance differential, normalized to 0-100 (positive delta = outperformed teammates)</li>
+            <li><strong>Consistency:</strong> Score variation across seasons (higher = more consistent performance)</li>
+          </ul>
+        </div>
+      `;
       document.getElementById('comparisonResults').appendChild(chartSection);
 
       const datasets = drivers.map((driver, idx) => {
@@ -649,7 +802,11 @@
     function createHeadToHead(drivers) {
       const h2hSection = document.createElement('div');
       h2hSection.className = 'h2h-section';
-      h2hSection.innerHTML = '<h3>Head-to-Head Matchups (When Teammates)</h3><div class="h2h-grid" id="h2hGrid"></div>';
+      h2hSection.innerHTML = `
+        <h3>Head-to-Head Matchups (When Teammates)</h3>
+        <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px;">Comparing Age-Adjusted Prospect Scores when drivers were on the same team in the same season. Higher score indicates better overall performance that year.</p>
+        <div class="h2h-grid" id="h2hGrid"></div>
+      `;
       document.getElementById('comparisonResults').appendChild(h2hSection);
 
       const grid = document.getElementById('h2hGrid');
