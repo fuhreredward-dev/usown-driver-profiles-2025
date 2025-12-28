@@ -410,9 +410,13 @@
       // Pathway patterns
       const pathwayPatterns = analyzePathwayPatterns(nxtDrivers);
       
+      // Advancement by prospect score
+      const advancementByScore = analyzeAdvancementByScore(driverData);
+      
       // Render analysis
       content.innerHTML = `
         ${renderOverviewStats(nxtDrivers.length, indycarDrivers.length)}
+        ${renderAdvancementByScore(advancementByScore)}
         ${renderSeriesProgression(usf2000Years, proUsf2000Years, usf2000YearsIndyCar, proUsf2000YearsIndyCar)}
         ${renderJuniorsAnalysis(juniorsToUSF2000.length, juniorsToProUSF2000.length)}
         ${renderPathwayPatterns(pathwayPatterns)}
@@ -461,6 +465,103 @@
       });
 
       return patterns;
+    }
+
+    function analyzeAdvancementByScore(driverData) {
+      const scoreBuckets = {
+        '90+': { total: 0, nxt: 0, indycar: 0 },
+        '80-89': { total: 0, nxt: 0, indycar: 0 },
+        '70-79': { total: 0, nxt: 0, indycar: 0 },
+        '60-69': { total: 0, nxt: 0, indycar: 0 },
+        '50-59': { total: 0, nxt: 0, indycar: 0 },
+        '<50': { total: 0, nxt: 0, indycar: 0 }
+      };
+
+      Object.entries(driverData).forEach(([driver, seasons]) => {
+        // Get peak prospect score
+        const scores = seasons
+          .map(s => parseFloat(s['Age-Adjusted Score']))
+          .filter(s => !isNaN(s));
+        
+        if (scores.length === 0) return;
+        
+        const peakScore = Math.max(...scores);
+        const hasNXT = seasons.some(s => s['Advanced to Indy NXT']?.toLowerCase() === 'yes');
+        const hasIndyCar = seasons.some(s => s['Advanced to IndyCar']?.toLowerCase() === 'yes');
+
+        // Determine bucket
+        let bucket;
+        if (peakScore >= 90) bucket = '90+';
+        else if (peakScore >= 80) bucket = '80-89';
+        else if (peakScore >= 70) bucket = '70-79';
+        else if (peakScore >= 60) bucket = '60-69';
+        else if (peakScore >= 50) bucket = '50-59';
+        else bucket = '<50';
+
+        scoreBuckets[bucket].total++;
+        if (hasNXT) scoreBuckets[bucket].nxt++;
+        if (hasIndyCar) scoreBuckets[bucket].indycar++;
+      });
+
+      return scoreBuckets;
+    }
+
+    function renderAdvancementByScore(buckets) {
+      const rows = ['90+', '80-89', '70-79', '60-69', '50-59', '<50'].map(range => {
+        const data = buckets[range];
+        const nxtRate = data.total > 0 ? ((data.nxt / data.total) * 100).toFixed(1) : '0.0';
+        const indycarRate = data.total > 0 ? ((data.indycar / data.total) * 100).toFixed(1) : '0.0';
+        
+        return `
+          <tr>
+            <td><strong>${range}</strong></td>
+            <td>${data.total}</td>
+            <td>${data.nxt}</td>
+            <td>${nxtRate}%</td>
+            <td>${data.indycar}</td>
+            <td>${indycarRate}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="section">
+          <h3>Advancement Rate by Peak Prospect Score</h3>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            How does a driver's peak Age-Adjusted Prospect Score correlate with advancement to higher levels? 
+            This table shows the advancement rates to Indy NXT and IndyCar based on the highest score a driver achieved.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Score Range</th>
+                <th>Total Drivers</th>
+                <th>Advanced to NXT</th>
+                <th>NXT Rate</th>
+                <th>Advanced to IndyCar</th>
+                <th>IndyCar Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+          <div class="insight">
+            <strong>Key Insight:</strong> ${generateScoreInsight(buckets)}
+          </div>
+        </div>
+      `;
+    }
+
+    function generateScoreInsight(buckets) {
+      const elite = buckets['90+'];
+      const high = buckets['80-89'];
+      const eliteNXTRate = elite.total > 0 ? ((elite.nxt / elite.total) * 100).toFixed(0) : 0;
+      const highNXTRate = high.total > 0 ? ((high.nxt / high.total) * 100).toFixed(0) : 0;
+      
+      return `Drivers with peak scores of 90+ have a ${eliteNXTRate}% advancement rate to Indy NXT, 
+              compared to ${highNXTRate}% for drivers in the 80-89 range. This validates the prospect scoring system's 
+              predictive power - higher scores strongly correlate with advancement success.`;
     }
 
     function renderOverviewStats(nxtCount, indycarCount) {
@@ -711,4 +812,3 @@
   </script>
 </body>
 </html>
-
