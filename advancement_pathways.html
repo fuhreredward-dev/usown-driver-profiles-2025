@@ -396,7 +396,8 @@
           const hasProUSF2000 = seasons.some(s => s.Series === 'USF Pro 2000' && parseInt(s.Year) >= 2022);
           
           if (hasUSF2000) juniorsToUSF2000.push(driver);
-          if (hasProUSF2000) juniorsToProUSF2000.push(driver);
+          // Only count as "skipped to Pro 2000" if they went to Pro 2000 WITHOUT going through USF2000
+          if (hasProUSF2000 && !hasUSF2000) juniorsToProUSF2000.push(driver);
         }
       });
 
@@ -674,7 +675,7 @@
 
           <div class="dos-donts">
             <div class="dos">
-              <h4>Data-based insights/h4>
+              <h4>Data-based insights</h4>
               <ul>
                 <li>Move up after winning or finishing top-3</li>
                 <li>Prioritize seat time in top equipment</li>
