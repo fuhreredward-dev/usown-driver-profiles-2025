@@ -343,17 +343,24 @@
     let chartInstance = null;
 
     // Load the CSV data
-    fetch('masterdoc_adjusted.csv')
-      .then(response => response.text())
+    fetch('masterdoc_with_scores.csv')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to load CSV file');
+        }
+        return response.text();
+      })
       .then(csv => {
-        const lines = csv.trim().split('\n');
+        console.log('CSV loaded, parsing data...');
+        const lines = csv.trim().split(/\r?\n/);
         const headers = lines[0].split(',').map(h => h.trim());
+        console.log('Headers found:', headers);
         
         for (let i = 1; i < lines.length; i++) {
           const values = parseCSVLine(lines[i]);
           const row = {};
           headers.forEach((h, idx) => {
-            row[h] = values[idx] ? values[idx].trim() : '';
+            row[h] = values[idx] ? values[idx].trim().replace(/^"|"$/g, '') : '';
           });
           
           if (row.Driver && row.Year && row.Series) {
@@ -365,7 +372,17 @@
           }
         }
         
+        console.log('Parsed drivers:', Object.keys(driverSeasons).length);
         populateDriverDropdowns();
+      })
+      .catch(error => {
+        console.error('Error loading CSV:', error);
+        document.getElementById('comparisonResults').innerHTML = `
+          <div class="no-comparison">
+            <p style="color: #ff6b6b;">Error loading driver data: ${error.message}</p>
+            <p style="color: var(--muted); font-size: 13px;">Please make sure masterdoc_with_scores.csv is in the same directory.</p>
+          </div>
+        `;
       });
 
     function parseCSVLine(line) {
@@ -390,6 +407,13 @@
 
     function populateDriverDropdowns() {
       const drivers = Object.keys(driverSeasons).sort();
+      console.log('Total drivers found:', drivers.length);
+      
+      if (drivers.length === 0) {
+        console.error('No drivers found in CSV data');
+        return;
+      }
+      
       const selects = ['driver1', 'driver2', 'driver3', 'driver4'];
       
       selects.forEach(id => {
@@ -401,6 +425,8 @@
           select.appendChild(option);
         });
       });
+      
+      console.log('Dropdowns populated with', drivers.length, 'drivers');
     }
 
     function compareDrivers() {
@@ -450,11 +476,11 @@
       const minYear = Math.min(...years);
       const maxYear = Math.max(...years);
       
-      const scores = seasons.map(s => parseFloat(s['Prospect Score'])).filter(s => !isNaN(s));
+      const scores = seasons.map(s => parseFloat(s['Age-Adjusted Score'])).filter(s => !isNaN(s));
       const avgScore = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : 'N/A';
       const maxScore = scores.length ? Math.max(...scores).toFixed(1) : 'N/A';
       
-      const avgFinishes = seasons.map(s => parseFloat(s['Avg Finish'])).filter(f => !isNaN(f));
+      const avgFinishes = seasons.map(s => parseFloat(s['AVG Finish'])).filter(f => !isNaN(f));
       const avgFinish = avgFinishes.length ? (avgFinishes.reduce((a, b) => a + b, 0) / avgFinishes.length).toFixed(2) : 'N/A';
       
       const taafDeltas = seasons.map(s => parseFloat(s['TAAF Delta'])).filter(t => !isNaN(t));
@@ -500,7 +526,7 @@
         const seasons = driverSeasons[driver];
         const data = seasons.map(s => ({
           x: parseInt(s.Year),
-          y: parseFloat(s['Prospect Score']) || 0
+          y: parseFloat(s['Age-Adjusted Score']) || 0
         })).sort((a, b) => a.x - b.x);
 
         const colors = ['#3dd6c1', '#5a8fff', '#ff6b9d', '#ffd93d'];
@@ -559,10 +585,10 @@
         const seasons = driverSeasons[driver];
         
         // Calculate normalized metrics (0-100 scale)
-        const scores = seasons.map(s => parseFloat(s['Prospect Score'])).filter(s => !isNaN(s));
+        const scores = seasons.map(s => parseFloat(s['Age-Adjusted Score'])).filter(s => !isNaN(s));
         const avgScore = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
         
-        const avgFinishes = seasons.map(s => parseFloat(s['Avg Finish'])).filter(f => !isNaN(f));
+        const avgFinishes = seasons.map(s => parseFloat(s['AVG Finish'])).filter(f => !isNaN(f));
         const avgFinish = avgFinishes.length ? avgFinishes.reduce((a, b) => a + b, 0) / avgFinishes.length : 10;
         const finishScore = Math.max(0, 100 - (avgFinish * 10)); // Lower finish = higher score
         
@@ -650,8 +676,8 @@
               const item = document.createElement('div');
               item.className = 'h2h-item';
               
-              const score1 = parseFloat(s1['Prospect Score']) || 0;
-              const score2 = parseFloat(matchingSeason['Prospect Score']) || 0;
+              const score1 = parseFloat(s1['Age-Adjusted Score']) || 0;
+              const score2 = parseFloat(matchingSeason['Age-Adjusted Score']) || 0;
               const winner = score1 > score2 ? driver1 : driver2;
               
               item.innerHTML = `
