@@ -479,7 +479,7 @@
     }
 
     function renderAdvancementByDebutAge(buckets) {
-      const sortedAges = Object.keys(buckets).map(Number).sort((a, b) => a - b);
+      const sortedAges = Object.keys(buckets).map(Number).filter(age => age <= 24).sort((a, b) => a - b);
       
       const rows = sortedAges.map(age => {
         const data = buckets[age];
@@ -634,7 +634,9 @@
       Object.entries(seriesData).forEach(([series, data]) => {
         const ageCounts = {};
         data.forEach(entry => {
-          ageCounts[entry.age] = (ageCounts[entry.age] || 0) + 1;
+          if (entry.age <= 25) {
+            ageCounts[entry.age] = (ageCounts[entry.age] || 0) + 1;
+          }
         });
         
         const ages = Object.keys(ageCounts).map(Number).sort((a, b) => a - b);
@@ -701,10 +703,12 @@
         // Calculate average score by age
         const ageScores = {};
         data.forEach(entry => {
-          if (!ageScores[entry.age]) {
-            ageScores[entry.age] = [];
+          if (entry.age <= 25) {
+            if (!ageScores[entry.age]) {
+              ageScores[entry.age] = [];
+            }
+            ageScores[entry.age].push(entry.score);
           }
-          ageScores[entry.age].push(entry.score);
         });
         
         const chartData = Object.entries(ageScores).map(([age, scores]) => ({
