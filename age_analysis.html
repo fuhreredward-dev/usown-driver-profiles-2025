@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Age Analysis - USOWN Scout</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #121622;
+      --panel-2: #0f1320;
+      --accent: #3dd6c1;
+      --accent-soft: rgba(61, 214, 193, 0.15);
+      --text: #f2f5ff;
+      --muted: #9aa3b5;
+      --border: #1f2534;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --font: "Manrope", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: radial-gradient(120% 120% at 10% 10%, #101527 0%, #080a0f 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .topnav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .topnav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 120ms ease;
+    }
+    .topnav a:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .topnav a.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .brand-header {
+      text-align: center;
+      padding: 40px 20px 30px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel-2) 0%, transparent 100%);
+    }
+    .brand-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent), #5a8fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0 0 16px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .brand-links {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      font-size: 13px;
+    }
+    .brand-links a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .brand-links a:hover { opacity: 0.7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+      font-weight: 700;
+      font-size: 28px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+      color: var(--accent);
+    }
+    .intro {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .section h3 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-box .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .stat-box .label {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .insight {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .insight strong {
+      color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    td {
+      font-size: 14px;
+    }
+    .chart-section {
+      background: var(--panel-2);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .age-range-box {
+      background: var(--panel-2);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .age-range-box h4 {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 16px;
+    }
+    .sweet-spot {
+      background: linear-gradient(135deg, rgba(46, 160, 67, 0.2), var(--accent-soft));
+      border: 2px solid #2ea043;
+    }
+    .early-bird {
+      background: linear-gradient(135deg, rgba(90, 143, 255, 0.2), var(--accent-soft));
+      border: 2px solid #5a8fff;
+    }
+    .late-bloomer {
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), var(--accent-soft));
+      border: 2px solid #ff6b9d;
+    }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a href="driver_profiles.html">Driver Profiles</a>
+    <a href="masterdoc_table.html">Data Table</a>
+    <a href="driver_comparison.html">Compare Drivers</a>
+    <a href="advancement_pathways.html">Advancement Pathways</a>
+    <a href="age_analysis.html" class="active">Age Analysis</a>
+    <a href="statistics_guide.html">Statistics Guide</a>
+  </nav>
+  
+  <div class="brand-header">
+    <h1 class="brand-title">USOWN Scout by USOpenWheelNation</h1>
+    <p class="brand-subtitle">An analysis of IndyCar prospects utilizing USF Pro Championships race results from 2015-2025.</p>
+    <div class="brand-links">
+      <a href="https://usopenWheelNation.com" target="_blank" rel="noopener">Visit USOpenWheelNation.com →</a>
+      <span style="color: var(--muted);">•</span>
+      <a href="mailto:fuhreredward@gmail.com">Contact: fuhreredward@gmail.com</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Age Analysis: The Timing Factor</h1>
+    <p class="intro">
+      Age plays a critical role in driver development and advancement. This analysis examines when drivers enter each series, 
+      how age correlates with performance, and identifies the optimal timing for progression. Are you too young, too old, or just right?
+    </p>
+
+    <div id="analysisContent" class="loading">
+      <p>Loading age analysis...</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    let allData = [];
+    let chartInstances = [];
+
+    // Load data
+    fetch('masterdoc_with_scores.csv')
+      .then(response => response.text())
+      .then(csv => {
+        allData = parseCSV(csv);
+        analyzeAge();
+      })
+      .catch(error => {
+        document.getElementById('analysisContent').innerHTML = `
+          <div class="section">
+            <p style="color: #ff6b6b;">Error loading data: ${error.message}</p>
+          </div>
+        `;
+      });
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      const headers = lines[0].split(',').map(h => h.trim());
+      const rows = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        const row = {};
+        headers.forEach((h, idx) => {
+          row[h] = values[idx] ? values[idx].trim().replace(/^"|"$/g, '') : '';
+        });
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    }
+
+    function analyzeAge() {
+      const content = document.getElementById('analysisContent');
+      
+      // Group by driver
+      const driverData = {};
+      allData.forEach(row => {
+        const driver = row.Driver;
+        if (!driverData[driver]) {
+          driverData[driver] = [];
+        }
+        driverData[driver].push(row);
+      });
+
+      // Analyze by series
+      const seriesData = {
+        'USF Juniors': [],
+        'USF2000': [],
+        'USF Pro 2000': []
+      };
+
+      allData.forEach(row => {
+        const age = parseInt(row.Age);
+        const series = row.Series;
+        if (!isNaN(age) && seriesData[series]) {
+          seriesData[series].push({
+            age: age,
+            score: parseFloat(row['Age-Adjusted Score']) || 0,
+            avgFinish: parseFloat(row['AVG Finish']) || 0,
+            advancedNXT: row['Advanced to Indy NXT']?.toLowerCase() === 'yes',
+            advancedIndyCar: row['Advanced to IndyCar']?.toLowerCase() === 'yes',
+            driver: row.Driver
+          });
+        }
+      });
+
+      // Calculate age stats
+      const ageStats = calculateAgeStats(seriesData);
+      const advancementByAge = analyzeAdvancementByAge(driverData);
+      const peakPerformance = analyzePeakPerformanceAge(seriesData);
+
+      // Render analysis
+      content.innerHTML = `
+        ${renderAgeDistribution(ageStats)}
+        ${renderAdvancementByDebutAge(advancementByAge)}
+        ${renderPeakPerformanceAge(peakPerformance)}
+        ${renderAgeRecommendations(ageStats, advancementByAge)}
+      `;
+
+      // Render charts
+      renderAgeDistributionChart(seriesData);
+      renderAgeVsScoreChart(seriesData);
+    }
+
+    function calculateAgeStats(seriesData) {
+      const stats = {};
+      
+      Object.entries(seriesData).forEach(([series, data]) => {
+        if (data.length === 0) {
+          stats[series] = { avg: 0, min: 0, max: 0, median: 0 };
+          return;
+        }
+        
+        const ages = data.map(d => d.age).sort((a, b) => a - b);
+        const avg = ages.reduce((a, b) => a + b, 0) / ages.length;
+        const median = ages[Math.floor(ages.length / 2)];
+        
+        stats[series] = {
+          avg: avg.toFixed(1),
+          min: Math.min(...ages),
+          max: Math.max(...ages),
+          median: median,
+          count: ages.length
+        };
+      });
+      
+      return stats;
+    }
+
+    function analyzeAdvancementByAge(driverData) {
+      const ageBuckets = {};
+      
+      Object.entries(driverData).forEach(([driver, seasons]) => {
+        // Get first appearance age in any USF series
+        const firstSeason = seasons
+          .filter(s => ['USF Juniors', 'USF2000', 'USF Pro 2000'].includes(s.Series))
+          .sort((a, b) => parseInt(a.Year) - parseInt(b.Year))[0];
+        
+        if (!firstSeason) return;
+        
+        const debutAge = parseInt(firstSeason.Age);
+        if (isNaN(debutAge)) return;
+        
+        const hasNXT = seasons.some(s => s['Advanced to Indy NXT']?.toLowerCase() === 'yes');
+        const hasIndyCar = seasons.some(s => s['Advanced to IndyCar']?.toLowerCase() === 'yes');
+        
+        if (!ageBuckets[debutAge]) {
+          ageBuckets[debutAge] = { total: 0, nxt: 0, indycar: 0 };
+        }
+        
+        ageBuckets[debutAge].total++;
+        if (hasNXT) ageBuckets[debutAge].nxt++;
+        if (hasIndyCar) ageBuckets[debutAge].indycar++;
+      });
+      
+      return ageBuckets;
+    }
+
+    function analyzePeakPerformanceAge(seriesData) {
+      const peakAges = {};
+      
+      Object.entries(seriesData).forEach(([series, data]) => {
+        // Group by driver and find their best score age
+        const driverPeaks = {};
+        
+        data.forEach(entry => {
+          if (!driverPeaks[entry.driver]) {
+            driverPeaks[entry.driver] = { bestScore: 0, peakAge: 0 };
+          }
+          if (entry.score > driverPeaks[entry.driver].bestScore) {
+            driverPeaks[entry.driver].bestScore = entry.score;
+            driverPeaks[entry.driver].peakAge = entry.age;
+          }
+        });
+        
+        const peakAgesList = Object.values(driverPeaks).map(d => d.peakAge);
+        if (peakAgesList.length > 0) {
+          const avg = peakAgesList.reduce((a, b) => a + b, 0) / peakAgesList.length;
+          peakAges[series] = avg.toFixed(1);
+        } else {
+          peakAges[series] = 'N/A';
+        }
+      });
+      
+      return peakAges;
+    }
+
+    function renderAgeDistribution(stats) {
+      return `
+        <div class="section">
+          <h3>Age Distribution by Series</h3>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            Understanding the typical age range in each series helps contextualize driver development timelines.
+          </p>
+          <div class="stat-grid">
+            ${Object.entries(stats).map(([series, data]) => `
+              <div class="stat-box">
+                <div class="value">${data.median}</div>
+                <div class="label">Median Age - ${series}</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">
+                  Avg: ${data.avg} | Range: ${data.min}-${data.max}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="chart-section">
+            <canvas id="ageDistChart"></canvas>
+          </div>
+          <div class="insight">
+            <strong>Key Insight:</strong> ${generateAgeDistributionInsight(stats)}
+          </div>
+        </div>
+      `;
+    }
+
+    function generateAgeDistributionInsight(stats) {
+      const juniors = stats['USF Juniors'];
+      const usf2000 = stats['USF2000'];
+      const pro2000 = stats['USF Pro 2000'];
+      
+      return `The median age progresses logically through the ladder: ${juniors.median} in Juniors, 
+              ${usf2000.median} in USF2000, and ${pro2000.median} in Pro 2000. However, age ranges overlap 
+              significantly, with Pro 2000 seeing drivers from ${pro2000.min} to ${pro2000.max} years old.`;
+    }
+
+    function renderAdvancementByDebutAge(buckets) {
+      const sortedAges = Object.keys(buckets).map(Number).sort((a, b) => a - b);
+      
+      const rows = sortedAges.map(age => {
+        const data = buckets[age];
+        const nxtRate = data.total > 0 ? ((data.nxt / data.total) * 100).toFixed(1) : '0.0';
+        const indycarRate = data.total > 0 ? ((data.indycar / data.total) * 100).toFixed(1) : '0.0';
+        
+        return `
+          <tr>
+            <td><strong>${age}</strong></td>
+            <td>${data.total}</td>
+            <td>${data.nxt}</td>
+            <td>${nxtRate}%</td>
+            <td>${data.indycar}</td>
+            <td>${indycarRate}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="section">
+          <h3>Advancement Rates by Debut Age</h3>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            Does the age at which a driver enters the USF system affect their chances of reaching higher levels?
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Debut Age</th>
+                <th>Total Drivers</th>
+                <th>Advanced to NXT</th>
+                <th>NXT Rate</th>
+                <th>Advanced to IndyCar</th>
+                <th>IndyCar Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+          <div class="insight">
+            <strong>Key Insight:</strong> ${generateDebutAgeInsight(buckets)}
+          </div>
+        </div>
+      `;
+    }
+
+    function generateDebutAgeInsight(buckets) {
+      const ages = Object.keys(buckets).map(Number).sort((a, b) => a - b);
+      const youngAges = ages.filter(a => a <= 16);
+      const midAges = ages.filter(a => a > 16 && a <= 19);
+      const oldAges = ages.filter(a => a > 19);
+      
+      const youngSuccess = youngAges.reduce((sum, age) => {
+        const b = buckets[age];
+        return sum + (b.total > 0 ? (b.nxt / b.total) : 0);
+      }, 0) / (youngAges.length || 1) * 100;
+      
+      const midSuccess = midAges.reduce((sum, age) => {
+        const b = buckets[age];
+        return sum + (b.total > 0 ? (b.nxt / b.total) : 0);
+      }, 0) / (midAges.length || 1) * 100;
+      
+      return `Drivers who start young (≤16) have an average ${youngSuccess.toFixed(0)}% NXT advancement rate, 
+              compared to ${midSuccess.toFixed(0)}% for those starting at 17-19. Starting early provides more 
+              development time and better advancement odds.`;
+    }
+
+    function renderPeakPerformanceAge(peakAges) {
+      return `
+        <div class="section">
+          <h3>Peak Performance Age by Series</h3>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            At what age do drivers typically achieve their best prospect scores in each series?
+          </p>
+          <div class="stat-grid">
+            ${Object.entries(peakAges).map(([series, age]) => `
+              <div class="stat-box">
+                <div class="value">${age}</div>
+                <div class="label">Avg Peak Age - ${series}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="chart-section">
+            <canvas id="ageVsScoreChart"></canvas>
+          </div>
+          <div class="insight">
+            <strong>Key Insight:</strong> Drivers tend to peak at different ages depending on the series. 
+            In Pro 2000, the average peak performance age is ${peakAges['USF Pro 2000']}, suggesting drivers 
+            need time to develop racecraft at the highest junior level.
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAgeRecommendations(stats, buckets) {
+      const usf2000Med = parseFloat(stats['USF2000'].median);
+      const pro2000Med = parseFloat(stats['USF Pro 2000'].median);
+      
+      return `
+        <div class="section">
+          <h2>Age-Based Recommendations: Are You On Track?</h2>
+          
+          <div class="age-range-box sweet-spot">
+            <h4>🎯 The Sweet Spot (Ages 15-18)</h4>
+            <p style="color: var(--muted); margin: 8px 0 0;">
+              <strong>Best for:</strong> USF2000 and Pro 2000 entry<br>
+              <strong>Why:</strong> Peak physical development, maximum learning window, and ideal timing for NXT progression by 20-21. 
+              Data shows this age group has the highest advancement rates. You're young enough to make mistakes and old enough to learn quickly.
+            </p>
+          </div>
+
+          <div class="age-range-box early-bird">
+            <h4>⚡ The Early Bird (Ages 14-15)</h4>
+            <p style="color: var(--muted); margin: 8px 0 0;">
+              <strong>Best for:</strong> USF Juniors<br>
+              <strong>Why:</strong> Get a head start on development. If you're talented enough, you can progress through the system 
+              while still young. Some of the best drivers started at 14-15 and were in IndyCar by 19-20.
+              <br><strong>Warning:</strong> Don't rush - stay in Juniors until you're consistently competitive.
+            </p>
+          </div>
+
+          <div class="age-range-box late-bloomer">
+            <h4>🌙 The Late Bloomer (Ages 20+)</h4>
+            <p style="color: var(--muted); margin: 8px 0 0;">
+              <strong>Reality check:</strong> The data is not encouraging, but not impossible.<br>
+              <strong>Path forward:</strong> You need to dominate immediately. One year in USF2000, one in Pro 2000, and advance. 
+              The window is narrow but exists - several drivers started at 19-21 and made it.
+              <br><strong>Key:</strong> Peak prospect scores of 85+ are essential. Anything less significantly reduces advancement odds.
+            </p>
+          </div>
+
+          <div class="insight" style="margin-top: 20px;">
+            <strong>Bottom Line:</strong> Age matters, but it's not everything. A 20-year-old with an 85 prospect score 
+            has better odds than a 16-year-old with a 65 score. However, given equal performance, the younger driver 
+            has a clear advantage. The optimal debut age is ${Math.round(usf2000Med - 2)}-${Math.round(usf2000Med)}, 
+            progressing to Pro 2000 by ${Math.round(pro2000Med - 1)}-${Math.round(pro2000Med)}.
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAgeDistributionChart(seriesData) {
+      const ctx = document.getElementById('ageDistChart').getContext('2d');
+      
+      const datasets = [];
+      const colors = {
+        'USF Juniors': '#ff6b9d',
+        'USF2000': '#5a8fff',
+        'USF Pro 2000': '#3dd6c1'
+      };
+      
+      Object.entries(seriesData).forEach(([series, data]) => {
+        const ageCounts = {};
+        data.forEach(entry => {
+          ageCounts[entry.age] = (ageCounts[entry.age] || 0) + 1;
+        });
+        
+        const ages = Object.keys(ageCounts).map(Number).sort((a, b) => a - b);
+        const counts = ages.map(age => ageCounts[age]);
+        
+        datasets.push({
+          label: series,
+          data: ages.map((age, idx) => ({ x: age, y: counts[idx] })),
+          borderColor: colors[series],
+          backgroundColor: colors[series] + '40',
+          fill: true,
+          tension: 0.4
+        });
+      });
+      
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2.5,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Driver Count by Age and Series',
+              color: '#f2f5ff',
+              font: { size: 16 }
+            },
+            legend: {
+              labels: { color: '#f2f5ff', font: { size: 13 } }
+            }
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              title: { display: true, text: 'Age', color: '#9aa3b5' },
+              ticks: { color: '#9aa3b5', stepSize: 1 },
+              grid: { color: '#1f2534' }
+            },
+            y: {
+              title: { display: true, text: 'Number of Seasons', color: '#9aa3b5' },
+              ticks: { color: '#9aa3b5' },
+              grid: { color: '#1f2534' }
+            }
+          }
+        }
+      });
+      
+      chartInstances.push(chart);
+    }
+
+    function renderAgeVsScoreChart(seriesData) {
+      const ctx = document.getElementById('ageVsScoreChart').getContext('2d');
+      
+      const datasets = [];
+      const colors = {
+        'USF Juniors': '#ff6b9d',
+        'USF2000': '#5a8fff',
+        'USF Pro 2000': '#3dd6c1'
+      };
+      
+      Object.entries(seriesData).forEach(([series, data]) => {
+        // Calculate average score by age
+        const ageScores = {};
+        data.forEach(entry => {
+          if (!ageScores[entry.age]) {
+            ageScores[entry.age] = [];
+          }
+          ageScores[entry.age].push(entry.score);
+        });
+        
+        const chartData = Object.entries(ageScores).map(([age, scores]) => ({
+          x: parseInt(age),
+          y: scores.reduce((a, b) => a + b, 0) / scores.length
+        })).sort((a, b) => a.x - b.x);
+        
+        datasets.push({
+          label: series,
+          data: chartData,
+          borderColor: colors[series],
+          backgroundColor: colors[series],
+          pointRadius: 5,
+          pointHoverRadius: 7
+        });
+      });
+      
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2.5,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Average Prospect Score by Age',
+              color: '#f2f5ff',
+              font: { size: 16 }
+            },
+            legend: {
+              labels: { color: '#f2f5ff', font: { size: 13 } }
+            }
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              title: { display: true, text: 'Age', color: '#9aa3b5' },
+              ticks: { color: '#9aa3b5', stepSize: 1 },
+              grid: { color: '#1f2534' }
+            },
+            y: {
+              title: { display: true, text: 'Average Prospect Score', color: '#9aa3b5' },
+              ticks: { color: '#9aa3b5' },
+              grid: { color: '#1f2534' }
+            }
+          }
+        }
+      });
+      
+      chartInstances.push(chart);
+    }
+  </script>
+</body>
+</html>
