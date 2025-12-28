@@ -239,6 +239,15 @@
       font-size: 22px;
       color: var(--accent);
     }
+    .driver-card h2 a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .driver-card h2 a:hover {
+      opacity: 0.7;
+      text-decoration: underline;
+    }
     .driver-card .seasons {
       color: var(--muted);
       font-size: 13px;
@@ -573,7 +582,7 @@
         maxScore: driverStats.reduce((max, d) => d.maxScore > max.maxScore ? d : max).driver,
         avgScore: driverStats.reduce((max, d) => d.avgScore > max.avgScore ? d : max).driver,
         avgFinish: driverStats.reduce((min, d) => d.avgFinish < min.avgFinish ? d : min).driver, // Lower is better
-        avgTAAF: driverStats.reduce((max, d) => d.avgTAAF > max.avgTAAF ? d : max).driver
+        avgTAAF: driverStats.reduce((min, d) => d.avgTAAF < min.avgTAAF ? d : min).driver // Lower is better (closer to 0 or negative means dominated)
       };
 
       // Create comparison cards
@@ -626,7 +635,7 @@
       const isAvgTAAFLeader = leaders && leaders.avgTAAF === driver;
 
       card.innerHTML = `
-        <h2>${driver}</h2>
+        <h2><a href="driver_profiles.html?driver=${encodeURIComponent(driver)}">${driver}</a></h2>
         <div class="seasons">${minYear}-${maxYear} • ${seasons.length} season${seasons.length > 1 ? 's' : ''}</div>
         <div class="stat-row">
           <div class="stat-label">Peak Prospect Score</div>
@@ -727,7 +736,7 @@
             <li><strong>Avg Score:</strong> Average Age-Adjusted Prospect Score across all seasons (raw value, not percentile)</li>
             <li><strong>Peak Score:</strong> Highest Age-Adjusted Prospect Score achieved in any season (raw value)</li>
             <li><strong>Avg Finish:</strong> Career average finish position normalized to 0-100 (lower finish = higher score)</li>
-            <li><strong>TAAF Delta:</strong> Average teammate performance differential, normalized to 0-100 (positive delta = outperformed teammates)</li>
+            <li><strong>TAAF Delta:</strong> Average teammate performance differential, normalized to 0-100 (negative delta = outperformed teammates consistently)</li>
             <li><strong>Consistency:</strong> Score variation across seasons (higher = more consistent performance)</li>
           </ul>
         </div>
