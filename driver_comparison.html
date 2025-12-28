@@ -635,7 +635,7 @@
       const isAvgTAAFLeader = leaders && leaders.avgTAAF === driver;
 
       card.innerHTML = `
-        <h2><a href="driver_profiles.html?driver=${encodeURIComponent(driver)}">${driver}</a></h2>
+        <h2><a href="index.html?driver=${encodeURIComponent(driver)}">${driver}</a></h2>
         <div class="seasons">${minYear}-${maxYear} • ${seasons.length} season${seasons.length > 1 ? 's' : ''}</div>
         <div class="stat-row">
           <div class="stat-label">Peak Prospect Score</div>
@@ -867,3 +867,4 @@
   </script>
 </body>
 </html>
+
