@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advancement Pathways - USOWN Scout</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #121622;
+      --panel-2: #0f1320;
+      --accent: #3dd6c1;
+      --accent-soft: rgba(61, 214, 193, 0.15);
+      --text: #f2f5ff;
+      --muted: #9aa3b5;
+      --border: #1f2534;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --font: "Manrope", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: radial-gradient(120% 120% at 10% 10%, #101527 0%, #080a0f 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .topnav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .topnav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 120ms ease;
+    }
+    .topnav a:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .topnav a.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .brand-header {
+      text-align: center;
+      padding: 40px 20px 30px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel-2) 0%, transparent 100%);
+    }
+    .brand-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent), #5a8fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0 0 16px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .brand-links {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      font-size: 13px;
+    }
+    .brand-links a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .brand-links a:hover { opacity: 0.7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+      font-weight: 700;
+      font-size: 28px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 40px 0 16px;
+      color: var(--accent);
+    }
+    .intro {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .section h3 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-box .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .stat-box .label {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .insight {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .insight strong {
+      color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    td {
+      font-size: 14px;
+    }
+    .pathway-chart {
+      margin: 20px 0;
+      padding: 20px;
+      background: var(--panel-2);
+      border-radius: 12px;
+    }
+    .pathway-flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .pathway-node {
+      background: var(--panel);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 16px 24px;
+      text-align: center;
+      min-width: 140px;
+    }
+    .pathway-node .title {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .pathway-node .stat {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pathway-arrow {
+      color: var(--accent);
+      font-size: 24px;
+    }
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .recommendation {
+      background: linear-gradient(135deg, var(--accent-soft), rgba(90, 143, 255, 0.1));
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .recommendation h4 {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 16px;
+    }
+    .recommendation ul {
+      margin: 8px 0;
+      padding-left: 24px;
+      line-height: 1.8;
+    }
+    .recommendation li {
+      margin-bottom: 8px;
+    }
+    .dos-donts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    @media (max-width: 768px) {
+      .dos-donts {
+        grid-template-columns: 1fr;
+      }
+    }
+    .dos, .donts {
+      background: var(--panel-2);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .dos {
+      border-left: 3px solid #2ea043;
+    }
+    .donts {
+      border-left: 3px solid #ff6b6b;
+    }
+    .dos h4 {
+      color: #2ea043;
+      margin: 0 0 12px;
+    }
+    .donts h4 {
+      color: #ff6b6b;
+      margin: 0 0 12px;
+    }
+    .dos ul, .donts ul {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a href="driver_profiles.html">Driver Profiles</a>
+    <a href="masterdoc_table.html">Data Table</a>
+    <a href="driver_comparison.html">Compare Drivers</a>
+    <a href="advancement_pathways.html" class="active">Advancement Pathways</a>
+    <a href="statistics_guide.html">Statistics Guide</a>
+  </nav>
+  
+  <div class="brand-header">
+    <h1 class="brand-title">USOWN Scout by USOpenWheelNation</h1>
+    <p class="brand-subtitle">An analysis of IndyCar prospects utilizing USF Pro Championships race results from 2015-2025.</p>
+    <div class="brand-links">
+      <a href="https://usopenWheelNation.com" target="_blank" rel="noopener">Visit USOpenWheelNation.com →</a>
+      <span style="color: var(--muted);">•</span>
+      <a href="mailto:fuhreredward@gmail.com">Contact: fuhreredward@gmail.com</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Advancement Pathways Analysis</h1>
+    <p class="intro">
+      Understanding the journey from junior categories to IndyCar is crucial for talent evaluation. 
+      This analysis examines progression patterns, success rates, and optimal pathways through the USF Pro Championships ladder.
+      Based on drivers from 2015-2025, we identify what works, what doesn't, and what to watch for.
+    </p>
+
+    <div id="analysisContent" class="loading">
+      <p>Loading pathway analysis...</p>
+    </div>
+  </div>
+
+  <script>
+    let allData = [];
+
+    // Load data
+    fetch('masterdoc_with_scores.csv')
+      .then(response => response.text())
+      .then(csv => {
+        allData = parseCSV(csv);
+        analyzePathways();
+      })
+      .catch(error => {
+        document.getElementById('analysisContent').innerHTML = `
+          <div class="section">
+            <p style="color: #ff6b6b;">Error loading data: ${error.message}</p>
+          </div>
+        `;
+      });
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      const headers = lines[0].split(',').map(h => h.trim());
+      const rows = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        const row = {};
+        headers.forEach((h, idx) => {
+          row[h] = values[idx] ? values[idx].trim().replace(/^"|"$/g, '') : '';
+        });
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    }
+
+    function analyzePathways() {
+      const content = document.getElementById('analysisContent');
+      
+      // Group by driver
+      const driverData = {};
+      allData.forEach(row => {
+        const driver = row.Driver;
+        if (!driverData[driver]) {
+          driverData[driver] = [];
+        }
+        driverData[driver].push(row);
+      });
+
+      // Analyze advancement
+      const nxtDrivers = [];
+      const indycarDrivers = [];
+      const juniorsToUSF2000 = [];
+      const juniorsToProUSF2000 = [];
+      
+      Object.entries(driverData).forEach(([driver, seasons]) => {
+        const hasNXT = seasons.some(s => s['Advanced to Indy NXT']?.toLowerCase() === 'yes');
+        const hasIndyCar = seasons.some(s => s['Advanced to IndyCar']?.toLowerCase() === 'yes');
+        
+        if (hasNXT) nxtDrivers.push({ driver, seasons });
+        if (hasIndyCar) indycarDrivers.push({ driver, seasons });
+        
+        // Check USF Juniors progression (2022+)
+        const juniorsSeasons = seasons.filter(s => s.Series === 'USF Juniors' && parseInt(s.Year) >= 2022);
+        if (juniorsSeasons.length > 0) {
+          const hasUSF2000 = seasons.some(s => s.Series === 'USF2000' && parseInt(s.Year) >= 2022);
+          const hasProUSF2000 = seasons.some(s => s.Series === 'USF Pro 2000' && parseInt(s.Year) >= 2022);
+          
+          if (hasUSF2000) juniorsToUSF2000.push(driver);
+          if (hasProUSF2000) juniorsToProUSF2000.push(driver);
+        }
+      });
+
+      // Calculate years in each series for NXT advancers
+      const usf2000Years = calculateAverageYears(nxtDrivers, 'USF2000');
+      const proUsf2000Years = calculateAverageYears(nxtDrivers, 'USF Pro 2000');
+      const usf2000YearsIndyCar = calculateAverageYears(indycarDrivers, 'USF2000');
+      const proUsf2000YearsIndyCar = calculateAverageYears(indycarDrivers, 'USF Pro 2000');
+
+      // Pathway patterns
+      const pathwayPatterns = analyzePathwayPatterns(nxtDrivers);
+      
+      // Render analysis
+      content.innerHTML = `
+        ${renderOverviewStats(nxtDrivers.length, indycarDrivers.length)}
+        ${renderSeriesProgression(usf2000Years, proUsf2000Years, usf2000YearsIndyCar, proUsf2000YearsIndyCar)}
+        ${renderJuniorsAnalysis(juniorsToUSF2000.length, juniorsToProUSF2000.length)}
+        ${renderPathwayPatterns(pathwayPatterns)}
+        ${renderRecommendations()}
+      `;
+    }
+
+    function calculateAverageYears(drivers, series) {
+      const yearCounts = drivers
+        .map(d => d.seasons.filter(s => s.Series === series).length)
+        .filter(count => count > 0);
+      
+      if (yearCounts.length === 0) return { avg: 0, count: 0 };
+      
+      const avg = yearCounts.reduce((a, b) => a + b, 0) / yearCounts.length;
+      return {
+        avg: avg.toFixed(2),
+        count: yearCounts.length,
+        min: Math.min(...yearCounts),
+        max: Math.max(...yearCounts)
+      };
+    }
+
+    function analyzePathwayPatterns(drivers) {
+      const patterns = {
+        skipUSF2000: 0,
+        traditional: 0,
+        oneAndDone: 0,
+        multiYear: 0
+      };
+
+      drivers.forEach(d => {
+        const seriesProgression = [...new Set(d.seasons.map(s => s.Series))];
+        const hasUSF2000 = seriesProgression.includes('USF2000');
+        const hasProUSF2000 = seriesProgression.includes('USF Pro 2000');
+        
+        if (hasProUSF2000 && !hasUSF2000) {
+          patterns.skipUSF2000++;
+        } else if (hasUSF2000 && hasProUSF2000) {
+          patterns.traditional++;
+        }
+
+        const totalYears = d.seasons.length;
+        if (totalYears === 1) patterns.oneAndDone++;
+        else if (totalYears > 2) patterns.multiYear++;
+      });
+
+      return patterns;
+    }
+
+    function renderOverviewStats(nxtCount, indycarCount) {
+      const totalDrivers = Object.keys(allData.reduce((acc, row) => {
+        acc[row.Driver] = true;
+        return acc;
+      }, {})).length;
+
+      const nxtRate = ((nxtCount / totalDrivers) * 100).toFixed(1);
+      const indycarRate = ((indycarCount / totalDrivers) * 100).toFixed(1);
+
+      return `
+        <div class="section">
+          <h3>Advancement Success Rates</h3>
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="value">${totalDrivers}</div>
+              <div class="label">Total Drivers Tracked</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${nxtCount}</div>
+              <div class="label">Advanced to Indy NXT</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${indycarCount}</div>
+              <div class="label">Advanced to IndyCar</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${nxtRate}%</div>
+              <div class="label">NXT Advancement Rate</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${indycarRate}%</div>
+              <div class="label">IndyCar Advancement Rate</div>
+            </div>
+          </div>
+          <div class="insight">
+            <strong>Key Insight:</strong> Only ${nxtRate}% of drivers in our dataset advanced to Indy NXT, 
+            and ${indycarRate}% reached IndyCar. This demonstrates the highly competitive nature of the ladder system.
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSeriesProgression(usf2000, proUsf2000, usf2000IndyCar, proUsf2000IndyCar) {
+      return `
+        <div class="section">
+          <h3>Years in Each Series (Drivers Who Advanced to Indy NXT)</h3>
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="value">${usf2000.avg}</div>
+              <div class="label">Avg Years in USF2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${proUsf2000.avg}</div>
+              <div class="label">Avg Years in Pro 2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${usf2000.count}</div>
+              <div class="label">NXT Drivers from USF2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${proUsf2000.count}</div>
+              <div class="label">NXT Drivers from Pro 2000</div>
+            </div>
+          </div>
+          
+          <h3 style="margin-top: 30px;">Years in Each Series (Drivers Who Advanced to IndyCar)</h3>
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="value">${usf2000IndyCar.avg}</div>
+              <div class="label">Avg Years in USF2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${proUsf2000IndyCar.avg}</div>
+              <div class="label">Avg Years in Pro 2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${usf2000IndyCar.count}</div>
+              <div class="label">IndyCar Drivers from USF2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${proUsf2000IndyCar.count}</div>
+              <div class="label">IndyCar Drivers from Pro 2000</div>
+            </div>
+          </div>
+
+          <div class="insight">
+            <strong>Key Insight:</strong> On average, drivers who reach Indy NXT spend ${usf2000.avg} years in USF2000 
+            and ${proUsf2000.avg} years in Pro 2000. Those who reach IndyCar typically spend ${usf2000IndyCar.avg} years in USF2000 
+            and ${proUsf2000IndyCar.avg} years in Pro 2000. Range: ${usf2000.min}-${usf2000.max} years (USF2000), 
+            ${proUsf2000.min}-${proUsf2000.max} years (Pro 2000).
+          </div>
+        </div>
+      `;
+    }
+
+    function renderJuniorsAnalysis(toUSF2000, toProUSF2000) {
+      const totalJuniorsDrivers = allData.filter(row => 
+        row.Series === 'USF Juniors' && parseInt(row.Year) >= 2022
+      ).reduce((acc, row) => {
+        acc[row.Driver] = true;
+        return acc;
+      }, {});
+      
+      const juniorsCount = Object.keys(totalJuniorsDrivers).length;
+      const usf2000Rate = juniorsCount > 0 ? ((toUSF2000 / juniorsCount) * 100).toFixed(1) : 0;
+      const proRate = juniorsCount > 0 ? ((toProUSF2000 / juniorsCount) * 100).toFixed(1) : 0;
+
+      return `
+        <div class="section">
+          <h3>USF Juniors Effectiveness (2022-2025)</h3>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            USF Juniors was introduced in 2022 as the entry point to the ladder. Let's see how effective it's been as a development pathway.
+          </p>
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="value">${juniorsCount}</div>
+              <div class="label">Total USF Juniors Drivers</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${toUSF2000}</div>
+              <div class="label">Advanced to USF2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${toProUSF2000}</div>
+              <div class="label">Skipped to Pro 2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${usf2000Rate}%</div>
+              <div class="label">USF2000 Progression Rate</div>
+            </div>
+          </div>
+          <div class="insight">
+            <strong>Key Insight:</strong> ${usf2000Rate}% of USF Juniors drivers advanced to USF2000, while ${proRate}% 
+            skipped directly to Pro 2000 (like Ariel Elkin). ${toProUSF2000 > 0 ? 'Some drivers are successfully bypassing USF2000, suggesting it may not be essential for top talent.' : 'Most drivers follow the traditional progression through USF2000.'}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPathwayPatterns(patterns) {
+      const total = patterns.skipUSF2000 + patterns.traditional;
+      const skipRate = total > 0 ? ((patterns.skipUSF2000 / total) * 100).toFixed(1) : 0;
+      const traditionalRate = total > 0 ? ((patterns.traditional / total) * 100).toFixed(1) : 0;
+
+      return `
+        <div class="section">
+          <h3>Pathway Patterns to Indy NXT</h3>
+          <div class="pathway-chart">
+            <div class="pathway-flow">
+              <div class="pathway-node">
+                <div class="title">USF Juniors</div>
+                <div class="stat">Entry Point (2022+)</div>
+              </div>
+              <span class="pathway-arrow">→</span>
+              <div class="pathway-node">
+                <div class="title">USF2000</div>
+                <div class="stat">${traditionalRate}% take this path</div>
+              </div>
+              <span class="pathway-arrow">→</span>
+              <div class="pathway-node">
+                <div class="title">Pro 2000</div>
+                <div class="stat">Gateway to NXT</div>
+              </div>
+              <span class="pathway-arrow">→</span>
+              <div class="pathway-node">
+                <div class="title">Indy NXT</div>
+                <div class="stat">Pre-IndyCar</div>
+              </div>
+            </div>
+            <p style="text-align: center; color: var(--muted); font-size: 13px; margin-top: 16px;">
+              Alternative: ${skipRate}% skip USF2000 and go directly from Juniors/external series to Pro 2000
+            </p>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="value">${patterns.traditional}</div>
+              <div class="label">Traditional Path (All Levels)</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${patterns.skipUSF2000}</div>
+              <div class="label">Skipped USF2000</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${patterns.oneAndDone}</div>
+              <div class="label">One-and-Done Graduates</div>
+            </div>
+            <div class="stat-box">
+              <div class="value">${patterns.multiYear}</div>
+              <div class="label">3+ Year Careers</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRecommendations() {
+      return `
+        <div class="section">
+          <h2>Optimal Development Pathway Recommendations</h2>
+          
+          <div class="recommendation">
+            <h4>🎯 The Ideal Path (Based on Data)</h4>
+            <ul>
+              <li><strong>Age 14-16:</strong> Enter USF Juniors to learn the Road to Indy system</li>
+              <li><strong>Age 15-17:</strong> Graduate to USF2000 after 1-2 strong Juniors seasons</li>
+              <li><strong>Age 16-19:</strong> Move to Pro 2000, ideally after winning or finishing top-3 in USF2000</li>
+              <li><strong>Age 18-21:</strong> Advance to Indy NXT with championship credentials</li>
+            </ul>
+          </div>
+
+          <div class="dos-donts">
+            <div class="dos">
+              <h4>Data-based insights/h4>
+              <ul>
+                <li>Move up after winning or finishing top-3</li>
+                <li>Prioritize seat time in top equipment</li>
+                <li>Build consistent performance across seasons</li>
+                <li>Advance young (under 20) if talent warrants</li>
+                <li>Consider skipping USF2000 if you're dominant elsewhere</li>
+              </ul>
+            </div>
+            <div class="donts">
+              <h4>Things to avoid</h4>
+              <ul>
+                <li>Staying in the same series more than 2 years without winning</li>
+                <li>Rushing advancement without top-5 results</li>
+                <li>Overlooking the importance of team quality</li>
+                <li>Waiting too long - age matters in advancement</li>
+                <li>Data shows that in most years, jumping from USF Juniors to USF Pro 2000 is possible for top drivers</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="insight" style="margin-top: 20px;">
+            <strong>Reality Check:</strong> The "one-and-done winning path" is ideal but rare. 
+            Most IndyCar drivers spent 2-3 years total in USF2000/Pro 2000 combined. 
+            The key is consistent improvement and moving up when you're ready, not when you're desperate.
+            <br><br>
+            <strong>Is USF2000 Necessary?</strong> The data suggests not always. Drivers like Ariel Elkin have successfully 
+            skipped USF2000, going directly to Pro 2000. However, for most drivers, USF2000 provides valuable experience 
+            and a stepping stone. Consider your budget, results in Juniors, and team availability when making this decision.
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
