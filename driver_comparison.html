@@ -409,7 +409,26 @@
   <script>
     let allDriverData = [];
     let driverSeasons = {};
+    let qualifyingData = [];
     let chartInstance = null;
+
+    // Load qualifying data
+    fetch('qualifying_data_all_series.csv')
+      .then(response => response.text())
+      .then(csv => {
+        const lines = csv.trim().split(/\r?\n/);
+        const headers = lines[0].split(',').map(h => h.trim());
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',');
+          const row = {};
+          headers.forEach((h, idx) => {
+            row[h] = values[idx] ? values[idx].trim() : '';
+          });
+          qualifyingData.push(row);
+        }
+        console.log('Loaded qualifying data:', qualifyingData.length, 'sessions');
+      })
+      .catch(error => console.error('Error loading qualifying data:', error));
 
     // Load the CSV data
     fetch('masterdoc_with_scores.csv')
@@ -598,6 +617,9 @@
 
       // Create head-to-head section
       createHeadToHead(selectedDrivers);
+      
+      // Create qualifying head-to-head section
+      createQualifyingH2H(selectedDrivers);
     }
 
     function createDriverCard(driver, seasons, leaders) {
@@ -620,6 +642,12 @@
       const avgTAAF = taafDeltas.length ? (taafDeltas.reduce((a, b) => a + b, 0) / taafDeltas.length).toFixed(2) : 'N/A';
 
       const seriesList = [...new Set(seasons.map(s => s.Series))].join(', ');
+      
+      // Get xPACE values (same across all seasons for a driver)
+      const xPaceOval = seasons[0]['xPACE_Oval'] ? parseFloat(seasons[0]['xPACE_Oval']).toFixed(1) : 'N/A';
+      const xPaceLongRoad = seasons[0]['xPACE_Long_Road'] ? parseFloat(seasons[0]['xPACE_Long_Road']).toFixed(1) : 'N/A';
+      const xPaceShortRoad = seasons[0]['xPACE_Short_Road'] ? parseFloat(seasons[0]['xPACE_Short_Road']).toFixed(1) : 'N/A';
+      const xPaceStreet = seasons[0]['xPACE_Street'] ? parseFloat(seasons[0]['xPACE_Street']).toFixed(1) : 'N/A';
 
       // Check if this driver leads in each metric
       const isMaxScoreLeader = leaders && leaders.maxScore === driver;
@@ -645,6 +673,10 @@
         <div class="stat-row">
           <div class="stat-label">Avg TAAF Delta</div>
           <div class="stat-value ${isAvgTAAFLeader ? 'best' : ''}">${avgTAAF}</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">xPACE (Oval / Long / Short / Street)</div>
+          <div class="stat-value">${xPaceOval} / ${xPaceLongRoad} / ${xPaceShortRoad} / ${xPaceStreet}</div>
         </div>
         <div class="stat-row">
           <div class="stat-label">Series</div>
@@ -855,6 +887,130 @@
 
       if (!foundMatchup) {
         grid.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px;">No seasons found where these drivers were teammates.</p>';
+      }
+    }
+
+    function createQualifyingH2H(drivers) {
+      if (qualifyingData.length === 0) {
+        return; // Qualifying data not loaded yet
+      }
+
+      const h2hSection = document.createElement('div');
+      h2hSection.className = 'h2h-section';
+      h2hSection.style.marginTop = '32px';
+      h2hSection.innerHTML = `
+        <h3>Qualifying Head-to-Head (When Teammates)</h3>
+        <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px;">Comparing qualifying performance when drivers were on the same team. Shows who outqualified who in each session.</p>
+        <div class="h2h-grid" id="qualH2HGrid"></div>
+      `;
+      document.getElementById('comparisonResults').appendChild(h2hSection);
+
+      const grid = document.getElementById('qualH2HGrid');
+      let foundMatchup = false;
+
+      // Group qualifying by unique session
+      const sessionMap = {};
+      qualifyingData.forEach(q => {
+        const key = `${q.series}_${q.year}_${q.track}_${q.qualifying_session}`;
+        if (!sessionMap[key]) {
+          sessionMap[key] = {
+            series: q.series,
+            year: q.year,
+            track: q.track,
+            session: q.qualifying_session,
+            results: []
+          };
+        }
+        sessionMap[key].results.push(q);
+      });
+
+      // Find sessions where drivers were teammates
+      const matchups = {};
+      
+      for (let i = 0; i < drivers.length; i++) {
+        for (let j = i + 1; j < drivers.length; j++) {
+          const driver1 = drivers[i];
+          const driver2 = drivers[j];
+          const pairKey = [driver1, driver2].sort().join('_vs_');
+          
+          if (!matchups[pairKey]) {
+            matchups[pairKey] = {
+              driver1,
+              driver2,
+              sessions: [],
+              driver1Wins: 0,
+              driver2Wins: 0
+            };
+          }
+
+          Object.values(sessionMap).forEach(session => {
+            const d1Result = session.results.find(r => r.driver === driver1);
+            const d2Result = session.results.find(r => r.driver === driver2);
+            
+            if (d1Result && d2Result && d1Result.team === d2Result.team) {
+              foundMatchup = true;
+              const d1Time = parseFloat(d1Result.best_lap_time);
+              const d2Time = parseFloat(d2Result.best_lap_time);
+              
+              if (!isNaN(d1Time) && !isNaN(d2Time)) {
+                const winner = d1Time < d2Time ? driver1 : driver2;
+                if (winner === driver1) matchups[pairKey].driver1Wins++;
+                else matchups[pairKey].driver2Wins++;
+                
+                matchups[pairKey].sessions.push({
+                  year: session.year,
+                  series: session.series,
+                  track: session.track,
+                  team: d1Result.team,
+                  winner,
+                  d1Time,
+                  d2Time,
+                  gap: Math.abs(d1Time - d2Time).toFixed(3)
+                });
+              }
+            }
+          });
+        }
+      }
+
+      // Display matchups
+      Object.values(matchups).forEach(matchup => {
+        if (matchup.sessions.length > 0) {
+          const item = document.createElement('div');
+          item.className = 'h2h-item';
+          item.style.marginBottom = '20px';
+          
+          item.innerHTML = `
+            <div class="year" style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+              ${matchup.driver1} vs ${matchup.driver2}
+            </div>
+            <div style="color: var(--accent); font-size: 14px; margin-bottom: 12px;">
+              H2H: ${matchup.driver1} ${matchup.driver1Wins} - ${matchup.driver2Wins} ${matchup.driver2}
+            </div>
+            ${matchup.sessions.map(s => `
+              <div style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 13px; color: var(--muted); margin-bottom: 4px;">
+                  ${s.year} ${s.series} • ${s.track} • ${s.team}
+                </div>
+                <div style="font-size: 14px;">
+                  <span style="color: ${s.winner === matchup.driver1 ? 'var(--accent)' : 'var(--text)'}; font-weight: ${s.winner === matchup.driver1 ? '600' : '400'}">
+                    ${matchup.driver1}: ${s.d1Time.toFixed(3)}s
+                  </span>
+                  <span style="color: var(--muted); margin: 0 8px;">vs</span>
+                  <span style="color: ${s.winner === matchup.driver2 ? 'var(--accent)' : 'var(--text)'}; font-weight: ${s.winner === matchup.driver2 ? '600' : '400'}">
+                    ${matchup.driver2}: ${s.d2Time.toFixed(3)}s
+                  </span>
+                  <span style="color: var(--muted); margin-left: 8px;">(Δ ${s.gap}s)</span>
+                </div>
+              </div>
+            `).join('')}
+          `;
+          grid.appendChild(item);
+        }
+      });
+
+      if (!foundMatchup) {
+        grid.innerHTML = '<div class="no-comparison">No qualifying sessions found where these drivers were teammates.</div>';
       }
     }
   </script>

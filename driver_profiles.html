@@ -197,7 +197,8 @@
 
     const numberFields = new Set([
       'Age', 'Year', 'AVG Finish', 'TAAF Delta', 'AF YoY Change', 'TAAF Delta YoY Change',
-      'Series-Adj AVG Finish', 'Series-Adj TAAF Delta', 'Prospect Score', 'Age Adjustment', 'Age-Adjusted Score'
+      'Series-Adj AVG Finish', 'Series-Adj TAAF Delta', 'Prospect Score', 'Age Adjustment', 'Age-Adjusted Score',
+      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street'
     ]);
 
     const toNumber = (value) => {
@@ -241,7 +242,15 @@
           ageAdjustment: r['Age Adjustment'],
           ageAdjustedScore: r['Age-Adjusted Score']
         };
-        const existing = map.get(name) || { name, seasons: [] };
+        const existing = map.get(name) || { 
+          name, 
+          seasons: [],
+          xPACE_Oval: r['xPACE_Oval'],
+          xPACE_Road: r['xPACE_Road'],
+          xPACE_Long_Road: r['xPACE_Long_Road'],
+          xPACE_Short_Road: r['xPACE_Short_Road'],
+          xPACE_Street: r['xPACE_Street']
+        };
         existing.seasons.push(season);
         map.set(name, existing);
       });
@@ -493,6 +502,10 @@
           <div class="stat"><label>Latest age-adjusted score</label><div class="value">${formatNumber(driver.metrics.latestScore, 1)}</div></div>
           <div class="stat"><label>Mean score</label><div class="value">${formatNumber(driver.metrics.meanScore, 1)}</div></div>
           <div class="stat"><label>Best series-adj avg finish</label><div class="value">${formatNumber(driver.metrics.minAdjAvg, 2)}</div></div>
+          <div class="stat"><label>xPACE Oval</label><div class="value" style="color:${getScoreColor(driver.xPACE_Oval)}">${formatNumber(driver.xPACE_Oval, 1)}</div></div>
+          <div class="stat"><label>xPACE Long Road (≥2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Long_Road)}">${formatNumber(driver.xPACE_Long_Road, 1)}</div></div>
+          <div class="stat"><label>xPACE Short Road (<2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Short_Road)}">${formatNumber(driver.xPACE_Short_Road, 1)}</div></div>
+          <div class="stat"><label>xPACE Street Circuit</label><div class="value" style="color:${getScoreColor(driver.xPACE_Street)}">${formatNumber(driver.xPACE_Street, 1)}</div></div>
           <div class="stat"><label>Latest team</label><div class="value">${driver.metrics.latestTeam || '—'}</div></div>
           <div class="stat"><label>Age as of 1/1/2026</label><div class="value">${driver.metrics.currentAge ?? '—'}</div></div>
           ${rank ? `<div class="stat"><label>2025 ${latest.series} rank</label><div class="value">#${rank}</div></div>` : ''}
