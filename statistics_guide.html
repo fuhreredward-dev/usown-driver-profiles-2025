@@ -329,27 +329,37 @@
     </ol>
 
     <h3>xPACE (Expected Pace) Metrics</h3>
-    <p><strong>What it is:</strong> Three separate metrics that measure a driver's qualifying pace performance across different track types: Ovals, Road Courses, and Street Circuits. Values range from 0-100.</p>
+    <p><strong>What it is:</strong> Six separate metrics that measure a driver's qualifying pace performance: Ovals, Long Road Courses (≥2.5 miles), Short Road Courses (<2.5 miles), Street Circuits, combined Road, and calendar-weighted <strong>Indy-xPACE</strong>. Values range from 0-100.</p>
     
-    <p><strong>Why it matters:</strong> Qualifying performance is a critical indicator of raw speed and car control. xPACE normalizes qualifying results relative to teammates to isolate driver skill from car performance, while also considering overall field position to reward dominant drivers.</p>
+    <p><strong>Why it matters:</strong> Qualifying performance is a critical indicator of raw speed and car control. xPACE normalizes qualifying results relative to teammates to isolate driver skill from car performance, while also considering overall field position to reward dominant drivers. The <strong>Indy-xPACE</strong> aggregate gives a single measure weighted by IndyCar's actual calendar distribution.</p>
     
     <p><strong>How it's calculated:</strong></p>
     <ol>
       <li>For each qualifying session, calculate two components:
         <ul>
-          <li><strong>Teammate Component (75% weight):</strong> Compare driver's lap time to their fastest teammate in that session. Uses exponential decay formula: 100 × e^(-20 × gap_percentage). Drivers without teammates get full credit (100).</li>
-          <li><strong>Pole Component (25% weight):</strong> Compare driver's lap time to pole position. Same exponential decay formula prevents dominant drivers being penalized for having strong teammates.</li>
+          <li><strong>Teammate Component (40% weight):</strong> Compare driver's lap time to their fastest teammate in that session. Uses exponential decay formula with track-specific decay rates: k=75 for ovals (steeper penalty due to smaller fields), k=30 for roads/streets. Drivers without teammates get capped scores (85 for ovals, 90 for others).</li>
+          <li><strong>Pole Component (60% weight):</strong> Compare driver's lap time to pole position. Emphasizes actual field position to reward dominant performers.</li>
         </ul>
       </li>
-      <li>Combined xPACE for each session = (0.75 × Teammate Score) + (0.25 × Pole Score)</li>
-      <li>Average all session scores for each track type separately</li>
+      <li>Combined xPACE for each session = (0.40 × Teammate Score) + (0.60 × Pole Score)</li>
+      <li>Average the top 50% of session scores for each track type separately</li>
     </ol>
     
     <p><strong>Track Type Classifications:</strong></p>
     <ul>
-      <li><strong>Ovals:</strong> Lucas Oil Raceway, WWTR, Iowa, Phoenix, etc.</li>
-      <li><strong>Road Courses:</strong> Barber, Mid-Ohio, Road America, Sebring, etc.</li>
-      <li><strong>Street Circuits:</strong> St. Petersburg, Toronto, Long Beach, Nashville, etc.</li>
+      <li><strong>Ovals:</strong> Lucas Oil Raceway, WWTR, Iowa, Phoenix, etc. (k=75 decay rate for aggressive differentiation)</li>
+      <li><strong>Long Road Courses (≥2.5 mi):</strong> Road America (4.0mi), Sebring (3.7mi), COTA (3.4mi), Watkins Glen (3.4mi), NOLA (2.8mi), Ozarks (2.5mi)</li>
+      <li><strong>Short Road Courses (<2.5 mi):</strong> Mid-Ohio (2.3mi), Barber (2.4mi), Indy GP (2.4mi), Portland (2.0mi), VIR (2.3mi), Sonoma (2.4mi)</li>
+      <li><strong>Street Circuits:</strong> St. Petersburg, Toronto, Long Beach, Nashville, Detroit</li>
+      <li><strong>Indy-xPACE:</strong> Weighted by IndyCar's 17-race calendar distribution:
+        <ul>
+          <li>35.3% Oval (6 races)</li>
+          <li>29.4% Street (5 races)</li>
+          <li>23.5% Long Road (4 races)</li>
+          <li>11.8% Short Road (2 races)</li>
+        </ul>
+        Formula: Indy-xPACE = (6/17 × Oval) + (5/17 × Street) + (4/17 × Long Road) + (2/17 × Short Road)
+      </li>
     </ul>
     
     <p><strong>Interpretation:</strong></p>
@@ -363,8 +373,10 @@
     <div class="highlight">
       <p><strong>Example:</strong></p>
       <ul>
-        <li>Driver with xPACE Oval 98.5, Road 92.3, Street 89.1 shows exceptional oval qualifying but relatively weaker street circuit performance</li>
-        <li>Useful for identifying specialist vs. all-around talents</li>
+        <li>Driver with xPACE Oval 98.5, Long Road 92.3, Short Road 89.1, Street 87.6 → Indy-xPACE 91.8 (weighted heavily toward oval excellence)</li>
+        <li>Driver with xPACE Oval 65.0, Long Road 85.0, Short Road 88.0, Street 82.0 → Indy-xPACE 77.4 (oval weakness pulls down overall score)</li>
+        <li><strong>Indy-xPACE is the most relevant single qualifying metric for IndyCar prospects</strong> because it matches the actual calendar distribution</li>
+        <li>Long vs. Short road distinction matters: fewer laps on long courses means fewer opportunities for mistakes, different setup challenges</li>
         <li>N/A values indicate driver has no qualifying data for that track type</li>
       </ul>
     </div>

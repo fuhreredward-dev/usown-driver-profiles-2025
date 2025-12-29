@@ -648,6 +648,7 @@
       const xPaceLongRoad = seasons[0]['xPACE_Long_Road'] ? parseFloat(seasons[0]['xPACE_Long_Road']).toFixed(1) : 'N/A';
       const xPaceShortRoad = seasons[0]['xPACE_Short_Road'] ? parseFloat(seasons[0]['xPACE_Short_Road']).toFixed(1) : 'N/A';
       const xPaceStreet = seasons[0]['xPACE_Street'] ? parseFloat(seasons[0]['xPACE_Street']).toFixed(1) : 'N/A';
+      const indyXPace = seasons[0]['Indy_xPACE'] ? parseFloat(seasons[0]['Indy_xPACE']).toFixed(1) : 'N/A';
 
       // Check if this driver leads in each metric
       const isMaxScoreLeader = leaders && leaders.maxScore === driver;
@@ -675,8 +676,12 @@
           <div class="stat-value ${isAvgTAAFLeader ? 'best' : ''}">${avgTAAF}</div>
         </div>
         <div class="stat-row">
-          <div class="stat-label">xPACE (Oval / Long / Short / Street)</div>
-          <div class="stat-value">${xPaceOval} / ${xPaceLongRoad} / ${xPaceShortRoad} / ${xPaceStreet}</div>
+          <div class="stat-label" style="font-weight: 600; color: var(--accent);">Indy-xPACE (Calendar-Weighted)</div>
+          <div class="stat-value" style="font-weight: 600; color: var(--accent);">${indyXPace}</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label" style="font-size: 12px;">xPACE (Oval / Long / Short / Street)</div>
+          <div class="stat-value" style="font-size: 12px;">${xPaceOval} / ${xPaceLongRoad} / ${xPaceShortRoad} / ${xPaceStreet}</div>
         </div>
         <div class="stat-row">
           <div class="stat-label">Series</div>

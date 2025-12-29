@@ -278,7 +278,7 @@
     const numberFields = new Set([
       'Age', 'Year', 'AVG Finish', 'TAAF Delta', 'AF YoY Change', 'TAAF Delta YoY Change',
       'Series-Adj AVG Finish', 'Series-Adj TAAF Delta', 'Prospect Score', 'Age Adjustment', 'Age-Adjusted Score',
-      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street'
+      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street', 'Indy_xPACE'
     ]);
 
     const toNumber = (value) => {
@@ -319,6 +319,7 @@
       if (header === 'xPACE_Long_Road') return 'xPACE Long Road (≥2.5mi)';
       if (header === 'xPACE_Short_Road') return 'xPACE Short Road (<2.5mi)';
       if (header === 'xPACE_Street') return 'xPACE Street';
+      if (header === 'Indy_xPACE') return 'Indy-xPACE (Calendar-Weighted)';
       return header;
     }
 
@@ -327,7 +328,7 @@
         const color = getScoreColor(value);
         return `<span class="score-cell" style="color:${color}">${value.toFixed(1)}</span>`;
       }
-      if (header.startsWith('xPACE_') && Number.isFinite(value)) {
+      if ((header.startsWith('xPACE_') || header === 'Indy_xPACE') && Number.isFinite(value)) {
         const color = getScoreColor(value);
         return `<span class="score-cell" style="color:${color}">${value.toFixed(1)}</span>`;
       }

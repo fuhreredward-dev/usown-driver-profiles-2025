@@ -71,9 +71,40 @@
     .chip { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; background: var(--panel-2); border: 1px solid var(--border); margin-right: 6px; }
     #detail { padding: 18px; display: grid; gap: 14px; }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    .stat-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 768px) { .stat-columns { grid-template-columns: 1fr; } }
     .stat { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
     .stat label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; letter-spacing: 0.02em; }
     .stat .value { font-size: 20px; font-weight: 700; }
+    .section-header { 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+      margin-bottom: 12px; 
+      padding-bottom: 8px; 
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header h3 { margin: 0; font-size: 15px; font-weight: 600; }
+    .section-header .help-icon { 
+      color: var(--muted); 
+      font-size: 12px; 
+      cursor: help; 
+      background: var(--panel-2); 
+      border: 1px solid var(--border); 
+      border-radius: 50%; 
+      width: 18px; 
+      height: 18px; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      font-weight: bold;
+    }
+    .section-explanation { 
+      font-size: 12px; 
+      color: var(--muted); 
+      line-height: 1.5; 
+      margin-bottom: 10px; 
+    }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
     th { color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
@@ -198,7 +229,7 @@
     const numberFields = new Set([
       'Age', 'Year', 'AVG Finish', 'TAAF Delta', 'AF YoY Change', 'TAAF Delta YoY Change',
       'Series-Adj AVG Finish', 'Series-Adj TAAF Delta', 'Prospect Score', 'Age Adjustment', 'Age-Adjusted Score',
-      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street'
+      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street', 'Indy_xPACE'
     ]);
 
     const toNumber = (value) => {
@@ -249,7 +280,8 @@
           xPACE_Road: r['xPACE_Road'],
           xPACE_Long_Road: r['xPACE_Long_Road'],
           xPACE_Short_Road: r['xPACE_Short_Road'],
-          xPACE_Street: r['xPACE_Street']
+          xPACE_Street: r['xPACE_Street'],
+          Indy_xPACE: r['Indy_xPACE']
         };
         existing.seasons.push(season);
         map.set(name, existing);
@@ -497,22 +529,60 @@
         </div>
         <div class="summary">${summarizeDriver(driver) || 'No summary available yet.'}</div>
         ${generateTAAFInsights(driver)}
-        <div class="stat-grid">
-          <div class="stat"><label>IndyCar prospect score</label><div class="value" style="color:${getScoreColor(driver.metrics.bestScore)}">${formatNumber(driver.metrics.bestScore, 1)}</div></div>
-          <div class="stat"><label>Latest age-adjusted score</label><div class="value">${formatNumber(driver.metrics.latestScore, 1)}</div></div>
-          <div class="stat"><label>Mean score</label><div class="value">${formatNumber(driver.metrics.meanScore, 1)}</div></div>
-          <div class="stat"><label>Best series-adj avg finish</label><div class="value">${formatNumber(driver.metrics.minAdjAvg, 2)}</div></div>
-          <div class="stat"><label>xPACE Oval</label><div class="value" style="color:${getScoreColor(driver.xPACE_Oval)}">${formatNumber(driver.xPACE_Oval, 1)}</div></div>
-          <div class="stat"><label>xPACE Long Road (≥2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Long_Road)}">${formatNumber(driver.xPACE_Long_Road, 1)}</div></div>
-          <div class="stat"><label>xPACE Short Road (<2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Short_Road)}">${formatNumber(driver.xPACE_Short_Road, 1)}</div></div>
-          <div class="stat"><label>xPACE Street Circuit</label><div class="value" style="color:${getScoreColor(driver.xPACE_Street)}">${formatNumber(driver.xPACE_Street, 1)}</div></div>
+        
+        <div class="stat-columns">
+          <!-- Left Column: Core Performance Stats -->
+          <div>
+            <div class="section-header">
+              <h3>Career Performance</h3>
+            </div>
+            <div class="section-explanation">
+              Overall race results and prospect scores. "IndyCar Prospect Score" is your best age-adjusted score, indicating how ready you are for IndyCar.
+            </div>
+            <div style="display: grid; gap: 10px;">
+              <div class="stat"><label>IndyCar prospect score</label><div class="value" style="color:${getScoreColor(driver.metrics.bestScore)}">${formatNumber(driver.metrics.bestScore, 1)}</div></div>
+              <div class="stat"><label>Latest age-adjusted score</label><div class="value">${formatNumber(driver.metrics.latestScore, 1)}</div></div>
+              <div class="stat"><label>Mean score</label><div class="value">${formatNumber(driver.metrics.meanScore, 1)}</div></div>
+              <div class="stat"><label>Best series-adj avg finish</label><div class="value">${formatNumber(driver.metrics.minAdjAvg, 2)}</div></div>
+            </div>
+          </div>
+          
+          <!-- Right Column: Qualifying Performance -->
+          <div>
+            <div class="section-header">
+              <h3>Qualifying Performance (xPACE)</h3>
+            </div>
+            <div class="section-explanation">
+              xPACE measures qualifying pace (0-100 scale) by track type, combining 40% teammate-relative + 60% pole position gap. Higher = faster qualifier.
+            </div>
+            <div style="display: grid; gap: 10px;">
+              <div class="stat" style="background: linear-gradient(135deg, var(--panel-2), rgba(61, 214, 193, 0.1)); border-color: var(--accent);">
+                <label style="color: var(--accent); font-weight: 600;">Indy-xPACE (Calendar-Weighted)</label>
+                <div class="value" style="color:${getScoreColor(driver.Indy_xPACE)}">${formatNumber(driver.Indy_xPACE, 1)}</div>
+                <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">Weighted by IndyCar calendar: 35% oval, 29% street, 24% long road, 12% short road</div>
+              </div>
+              <div class="stat"><label>xPACE Oval</label><div class="value" style="color:${getScoreColor(driver.xPACE_Oval)}">${formatNumber(driver.xPACE_Oval, 1)}</div></div>
+              <div class="stat"><label>xPACE Long Road (≥2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Long_Road)}">${formatNumber(driver.xPACE_Long_Road, 1)}</div></div>
+              <div class="stat"><label>xPACE Short Road (<2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Short_Road)}">${formatNumber(driver.xPACE_Short_Road, 1)}</div></div>
+              <div class="stat"><label>xPACE Street Circuit</label><div class="value" style="color:${getScoreColor(driver.xPACE_Street)}">${formatNumber(driver.xPACE_Street, 1)}</div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Additional Info Row -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px;">
           <div class="stat"><label>Latest team</label><div class="value">${driver.metrics.latestTeam || '—'}</div></div>
           <div class="stat"><label>Age as of 1/1/2026</label><div class="value">${driver.metrics.currentAge ?? '—'}</div></div>
           ${rank ? `<div class="stat"><label>2025 ${latest.series} rank</label><div class="value">#${rank}</div></div>` : ''}
         </div>
 
         <div>
-          <h3 class="section-title">Seasons</h3>
+          <div class="section-header">
+            <h3>Season-by-Season History</h3>
+          </div>
+          <div class="section-explanation">
+            Complete race results history. "Adj Avg Finish" accounts for series difficulty. "Adv." shows if driver moved up to Indy NXT or IndyCar.
+          </div>
           <table>
             <thead>
               <tr><th>Year</th><th>Series</th><th>Team</th><th>Age</th><th>Adj Avg Finish</th><th>Age-Adjusted Score</th><th>Adv.</th></tr>
@@ -534,7 +604,12 @@
         </div>
 
         <div>
-          <h3 class="section-title">Comparable drivers</h3>
+          <div class="section-header">
+            <h3>Comparable Drivers</h3>
+          </div>
+          <div class="section-explanation">
+            Drivers with similar performance profiles based on prospect scores and adjusted finishes. Δ shows similarity distance (lower = more similar).
+          </div>
           <div class="similar">
             ${similar.length ? similar.map(s => `
               <div class="similar-card" data-driver="${s.driver.name}">

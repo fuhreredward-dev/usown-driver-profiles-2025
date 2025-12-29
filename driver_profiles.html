@@ -229,7 +229,7 @@
     const numberFields = new Set([
       'Age', 'Year', 'AVG Finish', 'TAAF Delta', 'AF YoY Change', 'TAAF Delta YoY Change',
       'Series-Adj AVG Finish', 'Series-Adj TAAF Delta', 'Prospect Score', 'Age Adjustment', 'Age-Adjusted Score',
-      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street'
+      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street', 'Indy_xPACE'
     ]);
 
     const toNumber = (value) => {
@@ -280,7 +280,8 @@
           xPACE_Road: r['xPACE_Road'],
           xPACE_Long_Road: r['xPACE_Long_Road'],
           xPACE_Short_Road: r['xPACE_Short_Road'],
-          xPACE_Street: r['xPACE_Street']
+          xPACE_Street: r['xPACE_Street'],
+          Indy_xPACE: r['Indy_xPACE']
         };
         existing.seasons.push(season);
         map.set(name, existing);
@@ -555,6 +556,11 @@
               xPACE measures qualifying pace (0-100 scale) by track type, combining 40% teammate-relative + 60% pole position gap. Higher = faster qualifier.
             </div>
             <div style="display: grid; gap: 10px;">
+              <div class="stat" style="background: linear-gradient(135deg, var(--panel-2), rgba(61, 214, 193, 0.1)); border-color: var(--accent);">
+                <label style="color: var(--accent); font-weight: 600;">Indy-xPACE (Calendar-Weighted)</label>
+                <div class="value" style="color:${getScoreColor(driver.Indy_xPACE)}">${formatNumber(driver.Indy_xPACE, 1)}</div>
+                <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">Weighted by IndyCar calendar: 35% oval, 29% street, 24% long road, 12% short road</div>
+              </div>
               <div class="stat"><label>xPACE Oval</label><div class="value" style="color:${getScoreColor(driver.xPACE_Oval)}">${formatNumber(driver.xPACE_Oval, 1)}</div></div>
               <div class="stat"><label>xPACE Long Road (≥2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Long_Road)}">${formatNumber(driver.xPACE_Long_Road, 1)}</div></div>
               <div class="stat"><label>xPACE Short Road (<2.5mi)</label><div class="value" style="color:${getScoreColor(driver.xPACE_Short_Road)}">${formatNumber(driver.xPACE_Short_Road, 1)}</div></div>
