@@ -277,7 +277,8 @@
 
     const numberFields = new Set([
       'Age', 'Year', 'AVG Finish', 'TAAF Delta', 'AF YoY Change', 'TAAF Delta YoY Change',
-      'Series-Adj AVG Finish', 'Series-Adj TAAF Delta', 'Prospect Score', 'Age Adjustment', 'Age-Adjusted Score'
+      'Series-Adj AVG Finish', 'Series-Adj TAAF Delta', 'Prospect Score', 'Age Adjustment', 'Age-Adjusted Score',
+      'xPACE_Oval', 'xPACE_Road', 'xPACE_Long_Road', 'xPACE_Short_Road', 'xPACE_Street'
     ]);
 
     const toNumber = (value) => {
@@ -313,11 +314,20 @@
 
     function formatHeader(header) {
       if (header === 'Age-Adjusted Score') return 'IndyCar Prospect Score';
+      if (header === 'xPACE_Oval') return 'xPACE Oval';
+      if (header === 'xPACE_Road') return 'xPACE Road';
+      if (header === 'xPACE_Long_Road') return 'xPACE Long Road (≥2.5mi)';
+      if (header === 'xPACE_Short_Road') return 'xPACE Short Road (<2.5mi)';
+      if (header === 'xPACE_Street') return 'xPACE Street';
       return header;
     }
 
     function formatCell(header, value) {
       if (header === 'Age-Adjusted Score' && Number.isFinite(value)) {
+        const color = getScoreColor(value);
+        return `<span class="score-cell" style="color:${color}">${value.toFixed(1)}</span>`;
+      }
+      if (header.startsWith('xPACE_') && Number.isFinite(value)) {
         const color = getScoreColor(value);
         return `<span class="score-cell" style="color:${color}">${value.toFixed(1)}</span>`;
       }
